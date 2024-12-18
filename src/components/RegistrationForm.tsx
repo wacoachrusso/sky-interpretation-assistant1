@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import PricingSection from "./pricing/PricingSection";
 import RegistrationFormFields from "./registration/RegistrationFormFields";
 
@@ -79,10 +79,18 @@ const RegistrationForm = () => {
 
   return (
     <div className="w-full max-w-4xl mx-auto p-6">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-center mb-4">Join SkyGuide Today</h1>
-        <p className="text-center text-muted-foreground">Choose your plan and start exploring your contract details</p>
+      <div className="flex items-center justify-between mb-8">
+        <Button 
+          variant="ghost" 
+          onClick={() => navigate("/")}
+          className="text-primary hover:text-primary/90"
+        >
+          ← Back to Home
+        </Button>
+        <h1 className="text-3xl font-bold text-center">Join SkyGuide Today</h1>
       </div>
+
+      <p className="text-center text-muted-foreground mb-8">Choose your plan and start exploring your contract details</p>
 
       <PricingSection 
         selectedPlan={formData.plan}
@@ -104,7 +112,7 @@ const RegistrationForm = () => {
         </Button>
         
         <p className="text-center text-sm text-muted-foreground">
-          Already have an account? <a href="/login" className="text-primary hover:underline">Sign in</a>
+          Already have an account? <Link to="/login" className="text-primary hover:underline">Sign in</Link>
         </p>
       </form>
     </div>
