@@ -18,8 +18,8 @@ serve(async (req) => {
 
   try {
     console.log('Starting chat-assistant function');
-    const { messages, threadId } = await req.json();
-    console.log('Request payload:', { threadId, messageCount: messages?.length });
+    const { messages, conversationId } = await req.json();
+    console.log('Request payload:', { conversationId, messageCount: messages?.length });
 
     if (!openAIApiKey) {
       throw new Error('OpenAI API key is not configured');
@@ -31,10 +31,7 @@ serve(async (req) => {
 
     // Create or retrieve thread
     console.log('Creating or retrieving thread');
-    const thread = threadId 
-      ? await openai.beta.threads.retrieve(threadId)
-      : await openai.beta.threads.create();
-    
+    const thread = await openai.beta.threads.create();
     console.log('Thread ID:', thread.id);
 
     // Get the last message from the messages array
@@ -85,7 +82,6 @@ serve(async (req) => {
 
     return new Response(
       JSON.stringify({
-        threadId: thread.id,
         message: {
           role: 'assistant',
           content: assistantMessage.content[0].text.value,
