@@ -5,6 +5,7 @@ import { ConversationSidebar } from './ConversationSidebar'
 import { MessageList } from './MessageList'
 import { MessageInput } from './MessageInput'
 import { Message, Conversation } from '@/types/chat'
+import { useIsMobile } from '@/hooks/use-mobile'
 
 interface ChatLayoutProps {
   conversations: Conversation[]
@@ -37,19 +38,23 @@ export function ChatLayout({
   onInputChange,
   onSend,
 }: ChatLayoutProps) {
+  const isMobile = useIsMobile()
+
   return (
     <SidebarProvider>
-      <div className="flex h-screen w-full">
+      <div className="flex h-screen w-full overflow-hidden">
         <QueryLimitChecker />
-        <ConversationSidebar
-          conversations={conversations}
-          currentConversation={currentConversation}
-          searchTerm={searchTerm}
-          onSearchChange={onSearchChange}
-          onConversationSelect={onConversationSelect}
-          onNewChat={onNewChat}
-        />
-        <div className="flex-1 flex flex-col relative bg-[#343541]">
+        <div className={`${isMobile ? 'absolute z-30 h-full' : 'relative'} ${currentConversation && isMobile ? 'hidden' : 'block'}`}>
+          <ConversationSidebar
+            conversations={conversations}
+            currentConversation={currentConversation}
+            searchTerm={searchTerm}
+            onSearchChange={onSearchChange}
+            onConversationSelect={onConversationSelect}
+            onNewChat={onNewChat}
+          />
+        </div>
+        <div className={`flex-1 flex flex-col relative bg-[#343541] ${!currentConversation && isMobile ? 'hidden' : 'block'}`}>
           <MessageList
             messages={messages}
             messagesEndRef={messagesEndRef}

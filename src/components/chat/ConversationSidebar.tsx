@@ -2,6 +2,7 @@ import React from 'react'
 import { Sidebar } from '../ui/sidebar'
 import { ConversationList } from './ConversationList'
 import { Conversation } from '@/types/chat'
+import { useIsMobile } from '@/hooks/use-mobile'
 
 interface ConversationSidebarProps {
   conversations: Conversation[]
@@ -20,8 +21,14 @@ export function ConversationSidebar({
   onConversationSelect,
   onNewChat,
 }: ConversationSidebarProps) {
+  const isMobile = useIsMobile()
+  
+  const handleConversationSelect = (id: string) => {
+    onConversationSelect(id)
+  }
+
   return (
-    <Sidebar className="w-[260px] bg-[#202123] border-r border-[#4D4D4F]">
+    <Sidebar className={`${isMobile ? 'w-full' : 'w-[260px]'} bg-[#202123] border-r border-[#4D4D4F]`}>
       <div className="flex flex-col h-full">
         <div className="p-3 border-b border-[#4D4D4F]">
           <div className="flex items-center gap-2 px-2 py-1">
@@ -39,7 +46,7 @@ export function ConversationSidebar({
             currentConversation={currentConversation}
             searchTerm={searchTerm}
             onSearchChange={onSearchChange}
-            onConversationSelect={onConversationSelect}
+            onConversationSelect={handleConversationSelect}
             onNewChat={onNewChat}
           />
         </div>

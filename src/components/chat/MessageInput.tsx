@@ -3,6 +3,7 @@ import { Button } from '../ui/button'
 import { Textarea } from '../ui/textarea'
 import { Send, Mic, MicOff } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
+import { useIsMobile } from '@/hooks/use-mobile'
 
 interface MessageInputProps {
   input: string
@@ -22,6 +23,7 @@ export function MessageInput({ input, isLoading, onInputChange, onSend }: Messag
   const [isListening, setIsListening] = useState(false);
   const [recognition, setRecognition] = useState<any>(null);
   const { toast } = useToast();
+  const isMobile = useIsMobile();
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -113,7 +115,7 @@ export function MessageInput({ input, isLoading, onInputChange, onSend }: Messag
   };
 
   return (
-    <div className="max-w-3xl mx-auto w-full">
+    <div className={`${isMobile ? 'w-full px-2' : 'max-w-3xl mx-auto w-full'}`}>
       <form onSubmit={handleSubmit} className="relative">
         <Textarea
           value={input}
@@ -121,7 +123,9 @@ export function MessageInput({ input, isLoading, onInputChange, onSend }: Messag
           onKeyDown={handleKeyDown}
           placeholder="Message SkyGuide..."
           disabled={isLoading}
-          className="min-h-[60px] w-full pr-32 resize-none bg-[#40414F] border-0 focus-visible:ring-0 text-white placeholder:text-[#8E8EA0] rounded-lg"
+          className={`min-h-[60px] w-full pr-32 resize-none bg-[#40414F] border-0 focus-visible:ring-0 text-white placeholder:text-[#8E8EA0] rounded-lg ${
+            isMobile ? 'text-sm' : 'text-base'
+          }`}
           rows={1}
         />
         <div className="absolute right-2 top-2 flex gap-2">
@@ -134,9 +138,9 @@ export function MessageInput({ input, isLoading, onInputChange, onSend }: Messag
             size="icon"
           >
             {isListening ? (
-              <MicOff className="h-4 w-4" />
+              <MicOff className={`${isMobile ? 'h-3 w-3' : 'h-4 w-4'}`} />
             ) : (
-              <Mic className="h-4 w-4" />
+              <Mic className={`${isMobile ? 'h-3 w-3' : 'h-4 w-4'}`} />
             )}
           </Button>
           <Button 
@@ -145,7 +149,7 @@ export function MessageInput({ input, isLoading, onInputChange, onSend }: Messag
             className="bg-[#9b87f5] hover:bg-[#7E69AB] h-[36px] w-[36px] p-0"
             size="icon"
           >
-            <Send className="h-4 w-4" />
+            <Send className={`${isMobile ? 'h-3 w-3' : 'h-4 w-4'}`} />
           </Button>
         </div>
       </form>
