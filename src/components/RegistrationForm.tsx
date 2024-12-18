@@ -21,16 +21,14 @@ const RegistrationForm = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
+  const validateForm = () => {
     if (!formData.plan) {
       toast({
         title: "Plan Selection Required",
         description: "Please select a subscription plan to continue.",
         variant: "destructive",
       });
-      return;
+      return false;
     }
 
     if (!formData.userType || !formData.airline) {
@@ -39,8 +37,25 @@ const RegistrationForm = () => {
         description: "Please select both your job title and airline.",
         variant: "destructive",
       });
-      return;
+      return false;
     }
+
+    if (formData.password.length < 6) {
+      toast({
+        title: "Invalid Password",
+        description: "Password must be at least 6 characters long.",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!validateForm()) return;
 
     setIsLoading(true);
     
@@ -48,7 +63,7 @@ const RegistrationForm = () => {
       console.log("Submitting registration form with data:", formData);
       
       const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: formData.email,
+        email: formData.email.trim().toLowerCase(),
         password: formData.password,
       });
 
@@ -73,14 +88,19 @@ const RegistrationForm = () => {
           description: "Welcome to SkyGuide! Redirecting you to the chat interface...",
         });
 
-        // Redirect to chat interface immediately after successful registration
         navigate("/chat");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Registration error:', error);
+      
+      let errorMessage = error.message;
+      if (error.message.includes("weak_password")) {
+        errorMessage = "Password must be at least 6 characters long.";
+      }
+      
       toast({
         title: "Registration Failed",
-        description: error.message,
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
