@@ -24,12 +24,30 @@ export const useMessages = () => {
       if (error) throw error
 
       console.log('Fetched messages:', data)
-      const typedMessages = data.map(message => ({
-        ...message,
-        role: message.role as "user" | "assistant"
-      })) as Message[]
+      
+      // Process messages to remove duplicate user questions
+      const processedData = data.reduce((acc: Message[], curr: any) => {
+        // If it's an assistant message, always include it
+        if (curr.role === 'assistant') {
+          acc.push({
+            ...curr,
+            role: curr.role as "user" | "assistant"
+          })
+        } 
+        // For user messages, only include if it's followed by an assistant response
+        else if (curr.role === 'user') {
+          const nextMessage = data[data.indexOf(curr) + 1]
+          if (nextMessage && nextMessage.role === 'assistant') {
+            acc.push({
+              ...curr,
+              role: curr.role as "user" | "assistant"
+            })
+          }
+        }
+        return acc
+      }, [])
 
-      setMessages(typedMessages)
+      setMessages(processedData)
     } catch (error) {
       console.error('Error fetching messages:', error)
       toast({
