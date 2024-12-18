@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Button } from '../ui/button'
 import { Textarea } from '../ui/textarea'
 import { Send, Mic, MicOff } from 'lucide-react'
@@ -25,6 +25,15 @@ export function MessageInput({ input, isLoading, onInputChange, onSend }: Messag
   const { toast } = useToast();
   const isMobile = useIsMobile();
 
+  // Cleanup effect
+  useEffect(() => {
+    return () => {
+      if (recognition) {
+        recognition.stop();
+      }
+    };
+  }, [recognition]);
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
@@ -43,9 +52,14 @@ export function MessageInput({ input, isLoading, onInputChange, onSend }: Messag
 
   const stopDictation = () => {
     if (recognition) {
-      recognition.stop();
-      setRecognition(null);
-      setIsListening(false);
+      try {
+        recognition.stop();
+        setRecognition(null);
+        setIsListening(false);
+        console.log('Dictation stopped manually');
+      } catch (error) {
+        console.error('Error stopping dictation:', error);
+      }
     }
   };
 
