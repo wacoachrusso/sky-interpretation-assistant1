@@ -58,7 +58,7 @@ export function MessageList({ messages, messagesEndRef }: MessageListProps) {
                   <div className="flex-1 text-[#ECECF1] leading-relaxed whitespace-pre-wrap">
                     {message.role === 'assistant' ? (
                       <div className="flex justify-between items-start gap-4">
-                        <TypewriterText text={message.content} />
+                        <div>{message.content}</div>
                         <Button
                           variant="ghost"
                           size="icon"

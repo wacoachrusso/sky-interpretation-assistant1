@@ -13,6 +13,7 @@ interface ChatLayoutProps {
   searchTerm: string
   input: string
   isLoading: boolean
+  isNewMessage: boolean
   messagesEndRef: React.RefObject<HTMLDivElement>
   onSearchChange: (value: string) => void
   onConversationSelect: (id: string) => void
@@ -28,6 +29,7 @@ export function ChatLayout({
   searchTerm,
   input,
   isLoading,
+  isNewMessage,
   messagesEndRef,
   onSearchChange,
   onConversationSelect,
