@@ -7,32 +7,35 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 const RegistrationForm = () => {
+  const [searchParams] = useSearchParams();
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
     password: "",
-    userType: "",
-    airline: "",
-    plan: "trial"
+    userType: searchParams.get("userType") || "",
+    airline: searchParams.get("airline") || "",
+    plan: searchParams.get("plan") || "trial"
   });
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  // Add navigation to home page
-  useEffect(() => {
-    console.log("Navigating to home page");
-    navigate("/");
-  }, []); // Empty dependency array means this runs once when component mounts
+  console.log("Registration form initialized with params:", {
+    userType: searchParams.get("userType"),
+    airline: searchParams.get("airline"),
+    plan: searchParams.get("plan")
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     
     try {
+      console.log("Submitting registration form with data:", formData);
+      
       // Sign up the user
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: formData.email,
@@ -146,7 +149,11 @@ const RegistrationForm = () => {
             onChange={(e) => setFormData({ ...formData, password: e.target.value })}
             required
           />
-          <Select onValueChange={(value) => setFormData({ ...formData, userType: value })} required>
+          <Select 
+            value={formData.userType} 
+            onValueChange={(value) => setFormData({ ...formData, userType: value })} 
+            required
+          >
             <SelectTrigger>
               <SelectValue placeholder="Select Role" />
             </SelectTrigger>
@@ -155,7 +162,11 @@ const RegistrationForm = () => {
               <SelectItem value="pilot">Pilot</SelectItem>
             </SelectContent>
           </Select>
-          <Select onValueChange={(value) => setFormData({ ...formData, airline: value })} required>
+          <Select 
+            value={formData.airline} 
+            onValueChange={(value) => setFormData({ ...formData, airline: value })} 
+            required
+          >
             <SelectTrigger>
               <SelectValue placeholder="Select Airline" />
             </SelectTrigger>
