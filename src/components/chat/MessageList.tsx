@@ -10,9 +10,9 @@ interface MessageListProps {
 export function MessageList({ messages, messagesEndRef }: MessageListProps) {
   return (
     <ScrollArea className="flex-1 bg-[#343541]">
-      <div className="max-w-3xl mx-auto">
+      <div className="w-full">
         {messages.length === 0 ? (
-          <div className="flex items-center justify-center h-full min-h-[calc(100vh-180px)]">
+          <div className="flex items-center justify-center h-[calc(100vh-80px)]">
             <div className="text-center space-y-3">
               <img
                 src="/lovable-uploads/4d0b5f1f-ee3c-422d-81df-9db600490aec.png"
