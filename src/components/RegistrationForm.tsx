@@ -6,6 +6,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 
 const RegistrationForm = () => {
   const [formData, setFormData] = useState({
@@ -16,15 +18,55 @@ const RegistrationForm = () => {
     airline: "",
     plan: "monthly" // Default to monthly plan
   });
+  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
-    toast({
-      title: "Registration Submitted",
-      description: "Please check your email for verification.",
-    });
+    setIsLoading(true);
+    
+    try {
+      // Sign up the user
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+      });
+
+      if (authError) throw authError;
+
+      if (authData.user) {
+        // Update the profile with additional information
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .update({
+            full_name: formData.fullName,
+            user_type: formData.userType,
+            airline: formData.airline,
+            subscription_plan: formData.plan
+          })
+          .eq('id', authData.user.id);
+
+        if (profileError) throw profileError;
+
+        toast({
+          title: "Registration Successful",
+          description: "Please check your email for verification.",
+        });
+
+        // Redirect to the main app
+        navigate("/");
+      }
+    } catch (error) {
+      console.error('Registration error:', error);
+      toast({
+        title: "Registration Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -79,20 +121,23 @@ const RegistrationForm = () => {
             placeholder="Full Name"
             value={formData.fullName}
             onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+            required
           />
           <Input
             type="email"
             placeholder="Email"
             value={formData.email}
             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            required
           />
           <Input
             type="password"
             placeholder="Password"
             value={formData.password}
             onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+            required
           />
-          <Select onValueChange={(value) => setFormData({ ...formData, userType: value })}>
+          <Select onValueChange={(value) => setFormData({ ...formData, userType: value })} required>
             <SelectTrigger>
               <SelectValue placeholder="Select Role" />
             </SelectTrigger>
@@ -101,7 +146,7 @@ const RegistrationForm = () => {
               <SelectItem value="pilot">Pilot</SelectItem>
             </SelectContent>
           </Select>
-          <Select onValueChange={(value) => setFormData({ ...formData, airline: value })}>
+          <Select onValueChange={(value) => setFormData({ ...formData, airline: value })} required>
             <SelectTrigger>
               <SelectValue placeholder="Select Airline" />
             </SelectTrigger>
@@ -115,8 +160,12 @@ const RegistrationForm = () => {
             </SelectContent>
           </Select>
         </div>
-        <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-lg py-6">
-          Start Your Free Trial
+        <Button 
+          type="submit" 
+          className="w-full bg-primary hover:bg-primary/90 text-lg py-6"
+          disabled={isLoading}
+        >
+          {isLoading ? "Creating Account..." : "Start Your Free Trial"}
         </Button>
         <p className="text-center text-sm text-muted-foreground">
           Already have an account? <a href="/login" className="text-primary hover:underline">Sign in</a>
