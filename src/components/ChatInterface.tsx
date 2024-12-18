@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { Sidebar } from './ui/sidebar'
+import { Sidebar, SidebarProvider } from './ui/sidebar'
 import { useToast } from './ui/use-toast'
 import { supabase } from '@/integrations/supabase/client'
 import { Message, Conversation } from '@/types/chat'
@@ -212,31 +212,33 @@ export default function ChatInterface() {
   };
 
   return (
-    <div className="flex h-screen bg-background">
-      <QueryLimitChecker />
-      <Sidebar className="w-64 p-4 border-r">
-        <ConversationList
-          conversations={conversations}
-          currentConversation={currentConversation}
-          searchTerm={searchTerm}
-          onSearchChange={setSearchTerm}
-          onConversationSelect={setCurrentConversation}
-          onNewChat={createNewChat}
-        />
-      </Sidebar>
+    <SidebarProvider>
+      <div className="flex h-screen bg-background">
+        <QueryLimitChecker />
+        <Sidebar className="w-64 p-4 border-r">
+          <ConversationList
+            conversations={conversations}
+            currentConversation={currentConversation}
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+            onConversationSelect={setCurrentConversation}
+            onNewChat={createNewChat}
+          />
+        </Sidebar>
 
-      <div className="flex-1 flex flex-col">
-        <MessageList
-          messages={messages}
-          messagesEndRef={messagesEndRef}
-        />
-        <MessageInput
-          input={input}
-          isLoading={isLoading}
-          onInputChange={setInput}
-          onSend={sendMessage}
-        />
+        <div className="flex-1 flex flex-col">
+          <MessageList
+            messages={messages}
+            messagesEndRef={messagesEndRef}
+          />
+          <MessageInput
+            input={input}
+            isLoading={isLoading}
+            onInputChange={setInput}
+            onSend={sendMessage}
+          />
+        </div>
       </div>
-    </div>
+    </SidebarProvider>
   );
 }
