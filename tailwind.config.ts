@@ -20,11 +20,11 @@ export default {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "#1B365D",
+          DEFAULT: "#1B365D", // United Airlines Navy Blue
           foreground: "#ffffff",
         },
         secondary: {
-          DEFAULT: "#C4A052",
+          DEFAULT: "#C4A052", // United Airlines Gold
           foreground: "#ffffff",
         },
         destructive: {
