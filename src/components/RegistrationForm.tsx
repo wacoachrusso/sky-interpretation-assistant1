@@ -14,17 +14,12 @@ const RegistrationForm = () => {
     password: "",
     userType: searchParams.get("userType") || "",
     airline: searchParams.get("airline") || "",
-    plan: searchParams.get("plan") || "trial"
+    plan: searchParams.get("expired") ? "monthly" : (searchParams.get("plan") || "trial")
   });
+  
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
-
-  console.log("Registration form initialized with params:", {
-    userType: searchParams.get("userType"),
-    airline: searchParams.get("airline"),
-    plan: searchParams.get("plan")
-  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,8 +40,6 @@ const RegistrationForm = () => {
           .from('profiles')
           .update({
             full_name: formData.fullName,
-            user_type: formData.userType,
-            airline: formData.airline,
             subscription_plan: formData.plan,
             query_count: 0
           })

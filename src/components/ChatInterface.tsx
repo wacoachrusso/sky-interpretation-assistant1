@@ -6,6 +6,7 @@ import { Message, Conversation } from '@/types/chat'
 import { ConversationList } from './chat/ConversationList'
 import { MessageList } from './chat/MessageList'
 import { MessageInput } from './chat/MessageInput'
+import { QueryLimitChecker } from './chat/QueryLimitChecker'
 
 export default function ChatInterface() {
   const [conversations, setConversations] = useState<Conversation[]>([])
@@ -119,16 +120,26 @@ export default function ChatInterface() {
   }
 
   const sendMessage = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!input.trim() || !currentConversation || isLoading) return
+    e.preventDefault();
+    if (!input.trim() || !currentConversation || isLoading) return;
 
-    setIsLoading(true)
-    const messageContent = input
-    setInput('')
+    setIsLoading(true);
+    const messageContent = input;
+    setInput('');
 
     try {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) throw new Error('No user found')
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('No user found');
+
+      // Increment query count before sending message
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ 
+          query_count: supabase.sql`query_count + 1` 
+        })
+        .eq('id', user.id);
+
+      if (updateError) throw updateError;
 
       // Save user message to database with explicit role type
       const { data: messageData, error: messageError } = await supabase
@@ -192,19 +203,20 @@ export default function ChatInterface() {
         .eq('user_id', user.id)
 
     } catch (error) {
-      console.error('Error sending message:', error)
+      console.error('Error sending message:', error);
       toast({
         title: 'Error',
         description: 'Failed to send message',
         variant: 'destructive',
-      })
+      });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="flex h-screen bg-background">
+      <QueryLimitChecker />
       <Sidebar className="w-64 p-4 border-r">
         <ConversationList
           conversations={conversations}
@@ -229,5 +241,5 @@ export default function ChatInterface() {
         />
       </div>
     </div>
-  )
+  );
 }
