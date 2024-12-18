@@ -34,6 +34,28 @@ const Index = () => {
     }
   };
 
+  const handleChooseMonthly = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      navigate("/signup?plan=monthly");
+    } else {
+      // If logged in, navigate to chat (you might want to add payment flow here)
+      navigate("/chat");
+    }
+  };
+
+  const handleChooseAnnual = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      navigate("/signup?plan=annual");
+    } else {
+      // If logged in, navigate to chat (you might want to add payment flow here)
+      navigate("/chat");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
@@ -116,7 +138,7 @@ const Index = () => {
                 <li>✓ Priority Support</li>
               </ul>
               <Button 
-                onClick={() => navigate("/signup?plan=monthly")}
+                onClick={handleChooseMonthly}
                 className="w-full"
               >
                 Choose Monthly
@@ -135,7 +157,7 @@ const Index = () => {
                 <li>✓ Save $10</li>
               </ul>
               <Button 
-                onClick={() => navigate("/signup?plan=annual")}
+                onClick={handleChooseAnnual}
                 className="w-full bg-secondary hover:bg-secondary/90"
               >
                 Choose Annual
