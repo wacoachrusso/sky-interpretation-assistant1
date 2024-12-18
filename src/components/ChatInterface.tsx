@@ -6,6 +6,7 @@ import { useMessages } from '@/hooks/useMessages'
 export default function ChatInterface() {
   const [input, setInput] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
+  const [isNewMessage, setIsNewMessage] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   
   const { 
@@ -25,6 +26,7 @@ export default function ChatInterface() {
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault()
     if (currentConversation) {
+      setIsNewMessage(true)
       await sendMessage(input, currentConversation)
       setInput('')
     }
@@ -32,12 +34,14 @@ export default function ChatInterface() {
 
   const handleConversationSelect = async (id: string) => {
     setCurrentConversation(id)
+    setIsNewMessage(false)
     await fetchMessages(id)
   }
 
   const handleNewChat = async () => {
     const newChatId = await createNewChat()
     if (newChatId) {
+      setIsNewMessage(false)
       await fetchMessages(newChatId)
     }
   }
@@ -50,6 +54,7 @@ export default function ChatInterface() {
       searchTerm={searchTerm}
       input={input}
       isLoading={isLoading}
+      isNewMessage={isNewMessage}
       messagesEndRef={messagesEndRef}
       onSearchChange={setSearchTerm}
       onConversationSelect={handleConversationSelect}
