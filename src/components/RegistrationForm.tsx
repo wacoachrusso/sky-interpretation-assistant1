@@ -7,7 +7,6 @@ import { useToast } from "@/hooks/use-toast";
 const RegistrationForm = () => {
   const [formData, setFormData] = useState({
     fullName: "",
-    employeeId: "",
     email: "",
     password: "",
     userType: "",
@@ -31,11 +30,6 @@ const RegistrationForm = () => {
           placeholder="Full Name"
           value={formData.fullName}
           onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-        />
-        <Input
-          placeholder="Employee ID"
-          value={formData.employeeId}
-          onChange={(e) => setFormData({ ...formData, employeeId: e.target.value })}
         />
         <Input
           type="email"
@@ -64,8 +58,11 @@ const RegistrationForm = () => {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="united">United Airlines</SelectItem>
-            <SelectItem value="delta">Delta Airlines</SelectItem>
             <SelectItem value="american">American Airlines</SelectItem>
+            <SelectItem value="southwest">Southwest Airlines</SelectItem>
+            <SelectItem value="alaska">Alaska Airlines</SelectItem>
+            <SelectItem value="spirit">Spirit Airlines</SelectItem>
+            <SelectItem value="jetblue">JetBlue Airways</SelectItem>
           </SelectContent>
         </Select>
       </div>

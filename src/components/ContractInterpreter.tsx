@@ -4,7 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 
-const ContractInterpreter = () => {
+const SkyGuideAssistant = () => {
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState("");
@@ -34,10 +34,10 @@ const ContractInterpreter = () => {
           {loading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Interpreting...
+              Processing...
             </>
           ) : (
-            "Get Interpretation"
+            "Get Answer"
           )}
         </Button>
       </form>
@@ -45,7 +45,7 @@ const ContractInterpreter = () => {
       {response && (
         <Card>
           <CardHeader>
-            <CardTitle>Contract Interpretation</CardTitle>
+            <CardTitle>SkyGuide Answer</CardTitle>
           </CardHeader>
           <CardContent>
             <pre className="whitespace-pre-wrap text-sm">{response}</pre>
@@ -56,4 +56,4 @@ const ContractInterpreter = () => {
   );
 };
 
-export default ContractInterpreter;
+export default SkyGuideAssistant;

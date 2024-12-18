@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import RegistrationForm from "@/components/RegistrationForm";
-import ContractInterpreter from "@/components/ContractInterpreter";
+import SkyGuideAssistant from "@/components/ContractInterpreter";
 
 const Index = () => {
   return (
@@ -23,14 +23,14 @@ const Index = () => {
         <Tabs defaultValue="register" className="w-full">
           <TabsList className="grid w-full grid-cols-2 mb-8">
             <TabsTrigger value="register">Register</TabsTrigger>
-            <TabsTrigger value="interpret">Contract Interpreter</TabsTrigger>
+            <TabsTrigger value="interpret">SkyGuide Assistant</TabsTrigger>
           </TabsList>
           <div className="flex justify-center">
             <TabsContent value="register">
               <RegistrationForm />
             </TabsContent>
             <TabsContent value="interpret">
-              <ContractInterpreter />
+              <SkyGuideAssistant />
             </TabsContent>
           </div>
         </Tabs>
