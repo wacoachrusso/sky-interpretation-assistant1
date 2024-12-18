@@ -1,14 +1,15 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useToast } from '@/components/ui/use-toast'
-import { supabase } from '@/integrations/supabase/client'
 import { Conversation } from '@/types/chat'
+import { supabase } from '@/integrations/supabase/client'
+import { handleError } from '@/lib/errors'
 
 export const useConversations = () => {
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [currentConversation, setCurrentConversation] = useState<string | null>(null)
   const { toast } = useToast()
 
-  const fetchConversations = async () => {
+  const fetchConversations = useCallback(async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) throw new Error('No user found')
@@ -16,7 +17,6 @@ export const useConversations = () => {
       const { data, error } = await supabase
         .from('conversations')
         .select('*')
-        .eq('user_id', user.id)
         .order('last_message_at', { ascending: false })
 
       if (error) throw error
@@ -29,11 +29,11 @@ export const useConversations = () => {
       console.error('Error fetching conversations:', error)
       toast({
         title: 'Error',
-        description: 'Failed to load conversations',
+        description: handleError(error),
         variant: 'destructive',
       })
     }
-  }
+  }, [])
 
   const createNewChat = async () => {
     try {
@@ -42,9 +42,10 @@ export const useConversations = () => {
 
       const { data, error } = await supabase
         .from('conversations')
-        .insert([{ 
+        .insert([{
           title: 'New Chat',
-          user_id: user.id
+          user_id: user.id,
+          last_message_at: new Date().toISOString()
         }])
         .select()
         .single()

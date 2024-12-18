@@ -1,12 +1,12 @@
-import React, { useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Message } from '@/types/chat'
 import { ScrollArea } from '../ui/scroll-area'
 import { EmptyState } from './EmptyState'
-import { TypewriterText } from './TypewriterText'
 import { Button } from '../ui/button'
 import { Download } from 'lucide-react'
 import { useToast } from '../ui/use-toast'
 import { useIsMobile } from '@/hooks/use-mobile'
+import { TypewriterMarkdown } from './TypewriterMarkdown'
 
 interface MessageListProps {
   messages: Message[]
@@ -16,10 +16,20 @@ interface MessageListProps {
 export function MessageList({ messages, messagesEndRef }: MessageListProps) {
   const { toast } = useToast()
   const isMobile = useIsMobile()
+  const [lastMessageId, setLastMessageId] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (messages.length > 0) {
+      setLastMessageId(messages[messages.length - 1].id)
+    }
+  }, [messages])
 
   useEffect(() => {
     console.log('Scrolling to latest message')
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    if (messagesEndRef.current) {
+      const behavior = messages.length <= 1 ? 'auto' : 'smooth'
+      messagesEndRef.current.scrollIntoView({ behavior })
+    }
   }, [messages])
 
   const handleDownload = (content: string) => {
@@ -69,10 +79,17 @@ export function MessageList({ messages, messagesEndRef }: MessageListProps) {
                           <div className={`text-[#ECECF1] leading-relaxed whitespace-pre-wrap ${
                             isMobile ? 'text-sm' : 'text-base'
                           }`}>
-                            {message.role === 'assistant' ? (
-                              <TypewriterText text={message.content} speed={20} />
+                            {message.role === 'assistant' && message.id === lastMessageId ? (
+                              <TypewriterMarkdown 
+                                content={message.content} 
+                                speed={20} 
+                                onComplete={() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })}
+                              />
                             ) : (
-                              message.content
+                              <TypewriterMarkdown 
+                                content={message.content}
+                                instant={true}
+                              />
                             )}
                           </div>
                           {message.role === 'assistant' && (

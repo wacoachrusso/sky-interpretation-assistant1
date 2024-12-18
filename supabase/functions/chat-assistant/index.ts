@@ -2,12 +2,29 @@ import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
-const assistantId = "asst_YdZtVHPSq6TIYKRkKcOqtwzn";
+const assistantId = "asst_YdZtVHPSq6TIYKRkKcOqtwzn"; 
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+const formatInstructions = `
+Please format your responses for maximum readability:
+
+1. Use markdown tables when presenting structured data
+2. Use bullet points for lists
+3. Use headers (##, ###) to organize sections
+4. Add line breaks between sections
+5. Bold important information
+6. Use code blocks for technical content
+7. Keep paragraphs short and focused
+
+Example table format:
+| Header 1 | Header 2 |
+|----------|----------|
+| Data 1   | Data 2   |
+`;
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -46,7 +63,8 @@ serve(async (req) => {
 
     // Get the last message from the messages array
     const lastMessage = messages[messages.length - 1];
-    console.log('Processing message:', lastMessage.content);
+    const enhancedMessage = `${formatInstructions}\n\nUser Question: ${lastMessage.content}`;
+    console.log('Processing message:', enhancedMessage);
 
     // Add the message to the thread
     console.log('Adding message to thread');
@@ -59,7 +77,7 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         role: 'user',
-        content: lastMessage.content
+        content: enhancedMessage
       })
     });
 

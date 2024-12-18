@@ -1,58 +1,27 @@
 import { useState } from 'react'
 import { useToast } from '@/components/ui/use-toast'
-import { supabase } from '@/integrations/supabase/client'
 import { Message } from '@/types/chat'
+import { handleError } from '@/lib/errors'
+import { fetchMessages as fetchMessagesApi } from '@/lib/api/messages'
+import { saveUserMessage, saveAssistantMessage, callChatAssistant } from '@/lib/api/supabase'
 
 export const useMessages = () => {
   const [messages, setMessages] = useState<Message[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const { toast } = useToast()
 
-  const fetchMessages = async (conversationId: string) => {
+  const fetchMessages = async (conversationId: string | null) => {
+    if (!conversationId) return
+
     try {
       console.log('Fetching messages for conversation:', conversationId)
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) throw new Error('No user found')
-
-      const { data, error } = await supabase
-        .from('messages')
-        .select('*')
-        .eq('conversation_id', conversationId)
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: true })
-
-      if (error) throw error
-
-      console.log('Fetched messages:', data)
-      
-      // Process messages to remove duplicate user questions
-      const processedData = data.reduce((acc: Message[], curr: any) => {
-        // If it's an assistant message, always include it
-        if (curr.role === 'assistant') {
-          acc.push({
-            ...curr,
-            role: curr.role as "user" | "assistant"
-          })
-        } 
-        // For user messages, only include if it's followed by an assistant response
-        else if (curr.role === 'user') {
-          const nextMessage = data[data.indexOf(curr) + 1]
-          if (nextMessage && nextMessage.role === 'assistant') {
-            acc.push({
-              ...curr,
-              role: curr.role as "user" | "assistant"
-            })
-          }
-        }
-        return acc
-      }, [])
-
-      setMessages(processedData)
+      const messages = await fetchMessagesApi(conversationId)
+      setMessages(messages)
     } catch (error) {
       console.error('Error fetching messages:', error)
       toast({
         title: 'Error',
-        description: 'Failed to load messages',
+        description: handleError(error),
         variant: 'destructive',
       })
     }
@@ -72,82 +41,27 @@ export const useMessages = () => {
     console.log('Sending message:', input)
 
     try {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) throw new Error('No user found')
-
-      // Update conversation title with first user message
-      if (messages.length === 0) {
-        const { error: titleError } = await supabase
-          .from('conversations')
-          .update({ title: input })
-          .eq('id', conversationId)
-          .eq('user_id', user.id)
-
-        if (titleError) throw titleError
-        console.log('Updated conversation title:', input)
-      }
-
       // Save user message
-      const { data: messageData, error: messageError } = await supabase
-        .from('messages')
-        .insert([{
-          conversation_id: conversationId,
-          content: input,
-          role: 'user',
-          user_id: user.id
-        }])
-        .select()
-        .single()
-
-      if (messageError) throw messageError
-
-      console.log('User message saved:', messageData)
-      const typedMessageData = { ...messageData, role: messageData.role as "user" | "assistant" } as Message
-      const updatedMessages = [...messages, typedMessageData]
+      const userMessage = await saveUserMessage(conversationId, input)
+      const updatedMessages = [...messages, userMessage]
       setMessages(updatedMessages)
 
       // Call chat-assistant function
-      console.log('Calling chat-assistant function')
-      const { data: functionData, error: functionError } = await supabase.functions.invoke('chat-assistant', {
-        body: {
-          messages: updatedMessages,
-          conversationId: conversationId
-        }
-      })
-
-      if (functionError) throw functionError
-      console.log('Assistant response:', functionData)
+      const assistantResponse = await callChatAssistant(updatedMessages, conversationId)
 
       // Save assistant message
-      const { data: assistantData, error: assistantError } = await supabase
-        .from('messages')
-        .insert([{
-          conversation_id: conversationId,
-          content: functionData.message.content,
-          role: 'assistant',
-          user_id: user.id
-        }])
-        .select()
-        .single()
-
-      if (assistantError) throw assistantError
-
-      console.log('Assistant message saved:', assistantData)
-      const typedAssistantData = { ...assistantData, role: assistantData.role as "user" | "assistant" } as Message
-      setMessages([...updatedMessages, typedAssistantData])
+      const assistantMessage = await saveAssistantMessage(
+        conversationId, 
+        assistantResponse.message.content
+      )
+      setMessages([...updatedMessages, assistantMessage])
 
       // Update conversation timestamp
-      await supabase
-        .from('conversations')
-        .update({ last_message_at: new Date().toISOString() })
-        .eq('id', conversationId)
-        .eq('user_id', user.id)
-
     } catch (error) {
       console.error('Error sending message:', error)
       toast({
         title: 'Error',
-        description: 'Failed to send message',
+        description: handleError(error),
         variant: 'destructive',
       })
     } finally {
