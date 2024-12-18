@@ -9,6 +9,8 @@ import { useToast } from '../ui/use-toast'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { LoadingMessage } from './LoadingMessage'
 
+const CONTRACT_REFERENCE_STYLES = "bg-[#2D2D30] p-3 rounded-md border border-[#4D4D4F] my-2 font-mono text-sm overflow-x-auto max-w-full whitespace-pre-wrap break-words"
+
 interface MessageListProps {
   messages: Message[]
   isLoading: boolean
@@ -63,7 +65,7 @@ export function MessageList({ messages, isLoading, messagesEndRef }: MessageList
                         : 'bg-[hsla(var(--user-message-bg))] hover:bg-[hsla(var(--message-hover))]'
                     }`}
                   >
-                    <div className={`w-full px-2 sm:px-0 max-w-3xl mx-auto flex gap-2 sm:gap-3`}>
+                    <div className={`w-full px-2 sm:px-0 max-w-[90%] lg:max-w-3xl mx-auto flex gap-2 sm:gap-3`}>
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
                         message.role === 'assistant'
                           ? 'bg-gradient-to-br from-[hsl(var(--chat-gradient-start))] to-[hsl(var(--chat-gradient-end))] shadow-lg'
@@ -71,21 +73,23 @@ export function MessageList({ messages, isLoading, messagesEndRef }: MessageList
                       }`}>
                         {message.role === 'assistant' ? 'AI' : 'U'}
                       </div>
-                      <div className="flex-1">
+                      <div className="flex-1 min-w-0 overflow-hidden">
                         <div className="flex justify-between items-start gap-2">
-                          <div className={`text-[#ECECF1] leading-relaxed whitespace-pre-wrap ${
+                          <div className={`text-[#ECECF1] leading-relaxed break-words max-w-full ${
                             isMobile ? 'text-sm' : 'text-base'
                           }`}>
                             {message.role === 'assistant' && message.id === lastMessageId ? (
                               <TypewriterMarkdown 
                                 content={message.content} 
                                 speed={10}
+                                contractReferenceClassName={CONTRACT_REFERENCE_STYLES}
                                 onComplete={() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })}
                               />
                             ) : (
                               <TypewriterMarkdown 
                                 content={message.content}
                                 instant={true}
+                                contractReferenceClassName={CONTRACT_REFERENCE_STYLES}
                               />
                             )}
                           </div>

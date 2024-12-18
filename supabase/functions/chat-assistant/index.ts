@@ -13,18 +13,18 @@ const corsHeaders = {
 const formatInstructions = `
 Please format your responses for maximum readability:
 
-1. Use markdown tables when presenting structured data
+1. Keep responses concise and well-organized
 2. Use bullet points for lists
-3. Use headers (##, ###) to organize sections
-4. Add line breaks between sections
-5. Bold important information
-6. Use code blocks for technical content
-7. Keep paragraphs short and focused
+3. Use bold for important terms
+4. Present contract references in code blocks with the 'contract-reference' class
+5. Keep paragraphs short (2-3 lines max)
+6. Add a blank line between sections
+7. Use tables only when comparing multiple items
 
-Example table format:
-| Header 1 | Header 2 |
-|----------|----------|
-| Data 1   | Data 2   |
+Example contract reference format:
+\`\`\`contract-reference
+Article X, Section Y, Paragraph Z
+\`\`\`
 `;
 
 serve(async (req) => {
