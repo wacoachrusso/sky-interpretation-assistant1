@@ -9,7 +9,7 @@ interface MessageListProps {
 
 export function MessageList({ messages, messagesEndRef }: MessageListProps) {
   return (
-    <ScrollArea className="flex-1 bg-[#343541]">
+    <ScrollArea className="flex-1">
       <div className="w-full">
         {messages.length === 0 ? (
           <div className="flex items-center justify-center h-[calc(100vh-80px)]">

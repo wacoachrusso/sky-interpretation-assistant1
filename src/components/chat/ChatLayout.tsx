@@ -37,7 +37,7 @@ export function ChatLayout({
 }: ChatLayoutProps) {
   return (
     <SidebarProvider>
-      <div className="flex h-screen bg-[#343541]">
+      <div className="flex h-screen overflow-hidden">
         <QueryLimitChecker />
         <ConversationSidebar
           conversations={conversations}
@@ -47,13 +47,13 @@ export function ChatLayout({
           onConversationSelect={onConversationSelect}
           onNewChat={onNewChat}
         />
-        <div className="flex-1 flex flex-col relative">
+        <div className="flex-1 flex flex-col relative bg-[#343541]">
           <MessageList
             messages={messages}
             messagesEndRef={messagesEndRef}
           />
           <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-[#343541] to-transparent h-32 pointer-events-none" />
-          <div className="absolute bottom-0 left-0 right-0 p-4 bg-[#343541]">
+          <div className="absolute bottom-0 left-0 right-0 p-4">
             <MessageInput
               input={input}
               isLoading={isLoading}
