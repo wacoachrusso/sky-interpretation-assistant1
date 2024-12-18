@@ -15,6 +15,7 @@ export type Database = {
           created_at: string
           full_name: string | null
           id: string
+          query_count: number | null
           subscription_plan: string | null
           user_type: string | null
         }
@@ -23,6 +24,7 @@ export type Database = {
           created_at?: string
           full_name?: string | null
           id: string
+          query_count?: number | null
           subscription_plan?: string | null
           user_type?: string | null
         }
@@ -31,6 +33,7 @@ export type Database = {
           created_at?: string
           full_name?: string | null
           id?: string
+          query_count?: number | null
           subscription_plan?: string | null
           user_type?: string | null
         }
