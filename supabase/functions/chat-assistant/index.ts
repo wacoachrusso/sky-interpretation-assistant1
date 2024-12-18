@@ -39,9 +39,9 @@ serve(async (req) => {
       content: lastMessage.content,
     })
 
-    // Run the assistant
+    // Run the assistant with your specific Assistant ID
     const run = await openai.beta.threads.runs.create(thread.id, {
-      assistant_id: "asst_abc123", // Replace with your assistant ID
+      assistant_id: "asst_YdZtVHPSq6TIYKRkKcOqtwzn", // Your specific Assistant ID
       instructions: "You are a helpful AI assistant. Respond concisely and clearly.",
     })
 
