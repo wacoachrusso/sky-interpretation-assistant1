@@ -14,6 +14,8 @@ const Index = () => {
   const [airline, setAirline] = useState("");
 
   const handleStartTrial = async () => {
+    console.log("Starting trial with:", { userType, airline });
+    
     if (!userType || !airline) {
       toast({
         title: "Missing Information",
@@ -24,34 +26,41 @@ const Index = () => {
     }
 
     const { data: { user } } = await supabase.auth.getUser();
+    console.log("Current user:", user);
     
     if (!user) {
-      // If not logged in, navigate to signup with pre-selected options
+      console.log("Navigating to signup with params:", `userType=${userType}&airline=${airline}&plan=trial`);
       navigate(`/signup?userType=${userType}&airline=${airline}&plan=trial`);
     } else {
-      // If logged in, navigate directly to chat
+      console.log("Navigating to chat");
       navigate("/chat");
     }
   };
 
   const handleChooseMonthly = async () => {
+    console.log("Choosing monthly plan");
     const { data: { user } } = await supabase.auth.getUser();
+    console.log("Current user:", user);
     
     if (!user) {
+      console.log("Navigating to signup with monthly plan");
       navigate("/signup?plan=monthly");
     } else {
-      // If logged in, navigate to chat (you might want to add payment flow here)
+      console.log("Navigating to chat");
       navigate("/chat");
     }
   };
 
   const handleChooseAnnual = async () => {
+    console.log("Choosing annual plan");
     const { data: { user } } = await supabase.auth.getUser();
+    console.log("Current user:", user);
     
     if (!user) {
+      console.log("Navigating to signup with annual plan");
       navigate("/signup?plan=annual");
     } else {
-      // If logged in, navigate to chat (you might want to add payment flow here)
+      console.log("Navigating to chat");
       navigate("/chat");
     }
   };
@@ -124,6 +133,7 @@ const Index = () => {
                 <Button 
                   onClick={handleStartTrial}
                   className="w-full"
+                  type="button"
                 >
                   Start Free Trial
                 </Button>
@@ -140,6 +150,7 @@ const Index = () => {
               <Button 
                 onClick={handleChooseMonthly}
                 className="w-full"
+                type="button"
               >
                 Choose Monthly
               </Button>
@@ -159,6 +170,7 @@ const Index = () => {
               <Button 
                 onClick={handleChooseAnnual}
                 className="w-full bg-secondary hover:bg-secondary/90"
+                type="button"
               >
                 Choose Annual
               </Button>
