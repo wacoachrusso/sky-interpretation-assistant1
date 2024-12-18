@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -61,13 +61,11 @@ const RegistrationForm = () => {
 
         toast({
           title: "Registration Successful",
-          description: "Please check your email for verification.",
+          description: "Welcome to SkyGuide! Redirecting you to the chat interface...",
         });
 
-        // Redirect to the main app after a short delay
-        setTimeout(() => {
-          navigate("/");
-        }, 1500);
+        // Navigate to the chat interface immediately
+        navigate("/chat");
       }
     } catch (error) {
       console.error('Registration error:', error);
