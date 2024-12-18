@@ -5,7 +5,7 @@ interface TypewriterTextProps {
   speed?: number;
 }
 
-export function TypewriterText({ text, speed = 10 }: TypewriterTextProps) {
+export function TypewriterText({ text, speed = 20 }: TypewriterTextProps) {
   const [displayedText, setDisplayedText] = useState('');
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -25,5 +25,5 @@ export function TypewriterText({ text, speed = 10 }: TypewriterTextProps) {
     setCurrentIndex(0);
   }, [text]);
 
-  return <div>{displayedText}</div>;
+  return <span>{displayedText}</span>;
 }

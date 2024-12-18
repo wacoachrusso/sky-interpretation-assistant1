@@ -62,7 +62,11 @@ export function MessageList({ messages, messagesEndRef }: MessageListProps) {
                       <div className={`text-[#ECECF1] leading-relaxed whitespace-pre-wrap ${
                         isMobile ? 'text-sm' : 'text-base'
                       }`}>
-                        {message.content}
+                        {message.role === 'assistant' ? (
+                          <TypewriterText text={message.content} speed={20} />
+                        ) : (
+                          message.content
+                        )}
                       </div>
                       {message.role === 'assistant' && (
                         <Button
