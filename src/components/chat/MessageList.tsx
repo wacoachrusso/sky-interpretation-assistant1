@@ -34,8 +34,8 @@ export function MessageList({ messages, messagesEndRef }: MessageListProps) {
   }
 
   return (
-    <ScrollArea className="flex-1 bg-[#343541]">
-      <div className="w-full">
+    <ScrollArea className="h-full">
+      <div className="min-h-full">
         {messages.length === 0 ? (
           <EmptyState />
         ) : (
@@ -57,24 +57,24 @@ export function MessageList({ messages, messagesEndRef }: MessageListProps) {
                   }`}>
                     {message.role === 'assistant' ? 'AI' : 'U'}
                   </div>
-                  <div className={`flex-1 text-[#ECECF1] leading-relaxed whitespace-pre-wrap ${
-                    isMobile ? 'text-sm' : 'text-base'
-                  }`}>
-                    {message.role === 'assistant' ? (
-                      <div className="flex justify-between items-start gap-4">
-                        <div>{message.content}</div>
+                  <div className="flex-1">
+                    <div className="flex justify-between items-start gap-4">
+                      <div className={`text-[#ECECF1] leading-relaxed whitespace-pre-wrap ${
+                        isMobile ? 'text-sm' : 'text-base'
+                      }`}>
+                        {message.content}
+                      </div>
+                      {message.role === 'assistant' && (
                         <Button
                           variant="ghost"
                           size="icon"
                           onClick={() => handleDownload(message.content)}
-                          className="text-gray-400 hover:text-white"
+                          className="text-gray-400 hover:text-white shrink-0"
                         >
-                          <Download className={`${isMobile ? 'h-3 w-3' : 'h-4 w-4'}`} />
+                          <Download className={`${isMobile ? 'h-4 w-4' : 'h-5 w-5'}`} />
                         </Button>
-                      </div>
-                    ) : (
-                      message.content
-                    )}
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>

@@ -6,6 +6,8 @@ import { MessageList } from './MessageList'
 import { MessageInput } from './MessageInput'
 import { Message, Conversation } from '@/types/chat'
 import { useIsMobile } from '@/hooks/use-mobile'
+import { Button } from '../ui/button'
+import { Menu, ArrowLeft } from 'lucide-react'
 
 interface ChatLayoutProps {
   conversations: Conversation[]
@@ -39,28 +41,78 @@ export function ChatLayout({
   onSend,
 }: ChatLayoutProps) {
   const isMobile = useIsMobile()
+  const [showSidebar, setShowSidebar] = React.useState(!isMobile)
+
+  const toggleSidebar = () => {
+    setShowSidebar(!showSidebar)
+  }
+
+  React.useEffect(() => {
+    if (!isMobile) {
+      setShowSidebar(true)
+    }
+  }, [isMobile])
 
   return (
     <SidebarProvider>
-      <div className="flex h-screen w-full overflow-hidden">
+      <div className="flex h-screen w-full overflow-hidden bg-[#343541]">
         <QueryLimitChecker />
-        <div className={`${isMobile ? 'absolute z-30 h-full' : 'relative'} ${currentConversation && isMobile ? 'hidden' : 'block'}`}>
+        
+        {/* Sidebar */}
+        <div 
+          className={`${
+            isMobile 
+              ? `fixed inset-y-0 left-0 z-50 w-full md:w-80 transform transition-transform duration-300 ease-in-out ${
+                  showSidebar ? 'translate-x-0' : '-translate-x-full'
+                }`
+              : 'w-80'
+          } bg-[#202123] border-r border-[#4D4D4F]`}
+        >
           <ConversationSidebar
             conversations={conversations}
             currentConversation={currentConversation}
             searchTerm={searchTerm}
             onSearchChange={onSearchChange}
-            onConversationSelect={onConversationSelect}
+            onConversationSelect={(id) => {
+              onConversationSelect(id)
+              if (isMobile) {
+                setShowSidebar(false)
+              }
+            }}
             onNewChat={onNewChat}
           />
         </div>
-        <div className={`flex-1 flex flex-col relative bg-[#343541] ${!currentConversation && isMobile ? 'hidden' : 'block'}`}>
-          <MessageList
-            messages={messages}
-            messagesEndRef={messagesEndRef}
-          />
-          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-[#343541] to-transparent h-32 pointer-events-none" />
-          <div className="absolute bottom-0 left-0 right-0 p-4">
+
+        {/* Main Content */}
+        <div className="flex-1 flex flex-col relative">
+          {/* Mobile Header */}
+          {isMobile && (
+            <div className="h-14 flex items-center px-4 bg-[#343541] border-b border-[#4D4D4F]">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={toggleSidebar}
+                className="text-white"
+              >
+                {showSidebar ? <ArrowLeft className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              </Button>
+              <span className="ml-4 text-white font-medium">
+                {currentConversation ? 'Chat' : 'SkyGuide'}
+              </span>
+            </div>
+          )}
+
+          {/* Messages */}
+          <div className="flex-1 relative">
+            <MessageList
+              messages={messages}
+              messagesEndRef={messagesEndRef}
+            />
+            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-[#343541] to-transparent h-32 pointer-events-none" />
+          </div>
+
+          {/* Input */}
+          <div className="p-4 relative">
             <MessageInput
               input={input}
               isLoading={isLoading}
