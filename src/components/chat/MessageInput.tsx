@@ -57,7 +57,6 @@ export function MessageInput({ input, isLoading, onInputChange, onSend }: Messag
         newRecognition.continuous = true;
         newRecognition.interimResults = true;
         
-        // Keep existing input when starting dictation
         let currentTranscript = input;
         
         newRecognition.onstart = () => {
@@ -69,8 +68,6 @@ export function MessageInput({ input, isLoading, onInputChange, onSend }: Messag
           const transcript = Array.from(event.results)
             .map((result: any) => result[0].transcript)
             .join(' ');
-          
-          // Combine existing input with new transcript
           onInputChange(currentTranscript + ' ' + transcript);
         };
 
@@ -115,7 +112,7 @@ export function MessageInput({ input, isLoading, onInputChange, onSend }: Messag
   };
 
   return (
-    <div className={`${isMobile ? 'w-full px-2' : 'max-w-3xl mx-auto w-full'}`}>
+    <div className="max-w-3xl mx-auto w-full px-4 md:px-0">
       <form onSubmit={handleSubmit} className="relative">
         <Textarea
           value={input}
@@ -123,33 +120,31 @@ export function MessageInput({ input, isLoading, onInputChange, onSend }: Messag
           onKeyDown={handleKeyDown}
           placeholder="Message SkyGuide..."
           disabled={isLoading}
-          className={`min-h-[60px] w-full pr-32 resize-none bg-[#40414F] border-0 focus-visible:ring-0 text-white placeholder:text-[#8E8EA0] rounded-lg ${
-            isMobile ? 'text-sm' : 'text-base'
-          }`}
+          className="min-h-[60px] w-full pr-24 resize-none bg-[#40414F] border-0 focus-visible:ring-0 text-white placeholder:text-[#8E8EA0] rounded-lg text-sm md:text-base"
           rows={1}
         />
         <div className="absolute right-2 top-2 flex gap-2">
           <Button
             type="button"
             onClick={toggleDictation}
-            className={`h-[36px] w-[36px] p-0 ${
+            className={`h-8 w-8 p-0 ${
               isListening ? 'bg-red-500 hover:bg-red-600' : 'bg-[#9b87f5] hover:bg-[#7E69AB]'
             }`}
             size="icon"
           >
             {isListening ? (
-              <MicOff className={`${isMobile ? 'h-3 w-3' : 'h-4 w-4'}`} />
+              <MicOff className="h-4 w-4" />
             ) : (
-              <Mic className={`${isMobile ? 'h-3 w-3' : 'h-4 w-4'}`} />
+              <Mic className="h-4 w-4" />
             )}
           </Button>
           <Button 
             type="submit" 
             disabled={isLoading || !input.trim()}
-            className="bg-[#9b87f5] hover:bg-[#7E69AB] h-[36px] w-[36px] p-0"
+            className="bg-[#9b87f5] hover:bg-[#7E69AB] h-8 w-8 p-0"
             size="icon"
           >
-            <Send className={`${isMobile ? 'h-3 w-3' : 'h-4 w-4'}`} />
+            <Send className="h-4 w-4" />
           </Button>
         </div>
       </form>

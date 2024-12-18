@@ -1,5 +1,4 @@
 import React from 'react'
-import { Sidebar } from '../ui/sidebar'
 import { ConversationList } from './ConversationList'
 import { Conversation } from '@/types/chat'
 import { useIsMobile } from '@/hooks/use-mobile'
