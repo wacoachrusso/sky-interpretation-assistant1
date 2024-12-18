@@ -1,46 +1,52 @@
 import { supabase } from '@/integrations/supabase/client'
-import { AuthError } from '@/lib/errors'
-import { TEST_USER_ID } from '../constants'
-import { createMockConversation } from '../mock-data'
+import { AuthError } from '../errors'
 
-export async function testLogin() {
-  try {
-    // Set test user data in localStorage
-    localStorage.setItem('testMode', 'true')
-    localStorage.setItem('testUserId', TEST_USER_ID)
-    
-    // Create initial test conversation if none exists
-    const conversations = JSON.parse(localStorage.getItem('conversations') || '[]')
-    if (conversations.length === 0) {
-      const newConversation = createMockConversation('New Chat')
-      localStorage.setItem('conversations', JSON.stringify([newConversation]))
+export async function signIn(email: string, password: string) {
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  })
+
+  if (error) throw error
+  return data
+}
+
+export async function signUp(email: string, password: string, metadata?: any) {
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      data: metadata
     }
-    
-    return { user: { id: TEST_USER_ID } }
-  } catch (error) {
-    console.error('Test login failed:', error)
-    throw error
-  }
+  })
+
+  if (error) throw error
+  return data
+}
+
+export async function signOut() {
+  const { error } = await supabase.auth.signOut()
+  if (error) throw error
 }
 
 export async function getCurrentUser() {
-  // Check for test mode
+  // Check if in test mode
   if (localStorage.getItem('testMode') === 'true') {
-    return { id: localStorage.getItem('testUserId') }
+    return { id: 'test-user', email: 'test@example.com' };
   }
 
   const { data: { user }, error } = await supabase.auth.getUser()
-  if (error || !user) throw new AuthError()
+  if (error) throw error
+  if (!user) throw new AuthError('No user found')
   return user
 }
 
 export async function isAuthenticated() {
   try {
-    // Check for test mode
+    // Check if in test mode
     if (localStorage.getItem('testMode') === 'true') {
-      return true
+      return true;
     }
-
     await getCurrentUser()
     return true
   } catch {
@@ -48,11 +54,7 @@ export async function isAuthenticated() {
   }
 }
 
-export async function signOut() {
-  // Clear test mode
-  localStorage.removeItem('testMode')
-  localStorage.removeItem('testUserId')
-  
-  // Sign out from Supabase
-  return supabase.auth.signOut()
+export async function testLogin() {
+  localStorage.setItem('testMode', 'true')
+  return true
 }

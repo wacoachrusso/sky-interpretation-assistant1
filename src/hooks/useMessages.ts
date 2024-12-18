@@ -1,88 +1,64 @@
-import { useState } from 'react'
-import { useToast } from '@/components/ui/use-toast'
+import * as React from 'react'
+const { useState, useRef } = React
+import { useToast } from '@/hooks/use-toast'
 import { Message } from '@/types/chat'
-import { fetchMessages as fetchMessagesApi } from '@/lib/api/messages'
-import { handleError } from '@/lib/errors'
-import { saveUserMessage, saveAssistantMessage, callChatAssistant } from '@/lib/api/supabase'
+import { processMessage, saveMessage } from '@/lib/api/messages'
 
 export const useMessages = () => {
   const [messages, setMessages] = useState<Message[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const { toast } = useToast()
+  const isProcessing = useRef(false)
 
-  // Load messages from local storage for current conversation
-  const loadOfflineMessages = (conversationId: string) => {
-    const savedMessages = localStorage.getItem(`messages-${conversationId}`)
-    if (savedMessages) {
-      return JSON.parse(savedMessages)
-    }
-    return []
-  }
-
-  const fetchMessages = async (conversationId: string | null) => {
-    if (!conversationId) return
-
+  const fetchMessages = async (conversationId: string) => {
     try {
-      console.log('Fetching messages for conversation:', conversationId)
-      let messages
-      try {
-        messages = await fetchMessagesApi(conversationId)
-      } catch (error) {
-        console.log('Falling back to offline messages')
-        messages = loadOfflineMessages(conversationId)
-      }
-      setMessages(messages)
+      const { data, error } = await supabase
+        .from('messages')
+        .select('*')
+        .eq('conversation_id', conversationId)
+        .order('created_at', { ascending: true })
+
+      if (error) throw error
+      setMessages(data)
     } catch (error) {
       console.error('Error fetching messages:', error)
       toast({
         title: 'Error',
-        description: handleError(error),
+        description: 'Failed to load messages',
         variant: 'destructive',
       })
     }
   }
 
   const sendMessage = async (input: string, conversationId: string) => {
-    if (!input.trim() || !conversationId || isLoading) {
-      console.log('Message not sent. Conditions:', {
-        inputEmpty: !input.trim(),
-        noConversation: !conversationId,
-        isLoading
-      })
-      return
-    }
+    if (!input.trim() || !conversationId || isLoading || isProcessing.current) return
 
     setIsLoading(true)
+    isProcessing.current = true
     console.log('Sending message:', input)
 
     try {
       // Save user message
-      const userMessage = await saveUserMessage(conversationId, input)
-      const updatedMessages = [...messages, userMessage]
-      setMessages(updatedMessages)
+      const userMessage = await saveMessage(input, 'user', conversationId)
+      setMessages(prev => [...prev, userMessage])
 
-      // Call chat-assistant function
-      const assistantResponse = await callChatAssistant(updatedMessages, conversationId)
-
-      // Save assistant message
-      const assistantMessage = await saveAssistantMessage(
-        conversationId, 
-        assistantResponse.message.content
-      )
+      // Process with assistant
+      const assistantResponse = await processMessage(input, conversationId, [...messages, userMessage])
       
-      const finalMessages = [...updatedMessages, assistantMessage]
-      setMessages(finalMessages)
+      // Save assistant message
+      const assistantMessage = await saveMessage(assistantResponse, 'assistant', conversationId)
+      setMessages(prev => [...prev, assistantMessage])
 
-      // Update conversation timestamp
     } catch (error) {
       console.error('Error sending message:', error)
       toast({
         title: 'Error',
-        description: handleError(error),
+        description: 'Failed to send message',
         variant: 'destructive',
       })
     } finally {
       setIsLoading(false)
+      isProcessing.current = false
     }
   }
 

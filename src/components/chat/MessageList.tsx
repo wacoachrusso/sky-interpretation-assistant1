@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Message } from '@/types/chat'
 import { ScrollArea } from '../ui/scroll-area'
 import { EmptyState } from './EmptyState'
@@ -23,6 +23,7 @@ export function MessageList({ messages, isLoading, messagesEndRef }: MessageList
   useEffect(() => {
     console.log('Scrolling to latest message')
     if (messagesEndRef.current) {
+      // Use instant scroll for first message or when many messages are loaded
       const behavior = messages.length <= 1 ? 'auto' : 'smooth'
       messagesEndRef.current.scrollIntoView({ behavior })
     }
@@ -49,7 +50,7 @@ export function MessageList({ messages, isLoading, messagesEndRef }: MessageList
       <div className="absolute inset-0 flex flex-col">
         <ScrollArea className="flex-1 [&>div>div]:!block">
           <div className="min-h-full pb-32">
-            {messages.length === 0 ? (
+            {messages.length === 0 && !isLoading ? (
               <EmptyState />
             ) : (
               <div className="pt-2">
@@ -57,9 +58,9 @@ export function MessageList({ messages, isLoading, messagesEndRef }: MessageList
                   <div
                     key={`${message.id}-${message.created_at}`}
                     className={`px-4 py-3 ${
-                      message.role === 'assistant' 
-                        ? 'bg-[hsla(var(--assistant-message-bg))]'
-                        : 'bg-[hsla(var(--user-message-bg))]'
+                      message.role === 'assistant'
+                        ? 'bg-[hsla(var(--assistant-message-bg))] hover:bg-[hsla(var(--message-hover))]'
+                        : 'bg-[hsla(var(--user-message-bg))] hover:bg-[hsla(var(--message-hover))]'
                     }`}
                   >
                     <div className={`w-full px-2 sm:px-0 max-w-3xl mx-auto flex gap-2 sm:gap-3`}>
@@ -75,10 +76,10 @@ export function MessageList({ messages, isLoading, messagesEndRef }: MessageList
                           <div className={`text-[#ECECF1] leading-relaxed whitespace-pre-wrap ${
                             isMobile ? 'text-sm' : 'text-base'
                           }`}>
-                            {message.role === 'assistant' && message.id === lastMessageId && !message.metadata?.instant ? (
+                            {message.role === 'assistant' && message.id === lastMessageId ? (
                               <TypewriterMarkdown 
                                 content={message.content} 
-                                speed={20} 
+                                speed={10}
                                 onComplete={() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })}
                               />
                             ) : (

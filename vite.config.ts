@@ -3,32 +3,28 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
 
-export default defineConfig(({mode}) => ({
+export default defineConfig({
   server: {
     host: "::",
     port: 8080,
     hmr: true
   },
   build: {
-    outDir: 'dist',
-    assetsDir: 'assets',
-    copyPublicDir: true,
+    assetsInclude: ['**/*.png'], // Ensure PNG files are included in the build
     rollupOptions: {
       output: {
         assetFileNames: (assetInfo) => {
-          const info = assetInfo.name.split('.')
-          const ext = info[info.length - 1]
-          if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(ext)) {
-            return `assets/[name][extname]`
+          if (assetInfo.name === 'favicon.png') {
+            return 'favicon.png';
           }
-          return `assets/[name][extname]`
+          return 'assets/[name]-[hash][extname]';
         }
       }
     }
   },
   plugins: [
     react(),
-    mode === 'development' && componentTagger(),
+    componentTagger(),
   ].filter(Boolean),
   resolve: {
     alias: {

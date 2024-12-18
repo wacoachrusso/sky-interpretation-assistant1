@@ -9,7 +9,7 @@ export function LoadingMessage() {
         </div>
         <div className="flex-1">
           <div className="text-[#ECECF1] animate-pulse">
-            Searching the contract
+            Analyzing your question
             <span className="inline-flex w-5">
               <span className="animate-[ellipsis_1s_0s_infinite]">.</span>
               <span className="animate-[ellipsis_1s_0.2s_infinite]">.</span>

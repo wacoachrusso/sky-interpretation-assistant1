@@ -11,92 +11,81 @@ export interface Database {
     Tables: {
       conversations: {
         Row: {
-          created_at: string
           id: string
-          last_message_at: string
+          created_at: string
           title: string
           user_id: string
+          last_message_at: string
         }
         Insert: {
-          created_at?: string
           id?: string
-          last_message_at?: string
-          title?: string
+          created_at?: string
+          title: string
           user_id: string
+          last_message_at?: string
         }
         Update: {
-          created_at?: string
           id?: string
-          last_message_at?: string
+          created_at?: string
           title?: string
           user_id?: string
+          last_message_at?: string
         }
-        Relationships: []
       }
       messages: {
         Row: {
-          content: string
-          conversation_id: string
-          created_at: string
           id: string
+          created_at: string
+          content: string
           role: string
+          conversation_id: string
           user_id: string
         }
         Insert: {
-          content: string
-          conversation_id: string
-          created_at?: string
           id?: string
+          created_at?: string
+          content: string
           role: string
+          conversation_id: string
           user_id: string
         }
         Update: {
-          content?: string
-          conversation_id?: string
-          created_at?: string
           id?: string
+          created_at?: string
+          content?: string
           role?: string
+          conversation_id?: string
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "messages_conversation_id_fkey"
-            columns: ["conversation_id"]
-            isOneToOne: false
-            referencedRelation: "conversations"
-            referencedColumns: ["id"]
-          }
-        ]
       }
       profiles: {
         Row: {
-          airline: string | null
+          id: string
           created_at: string
           full_name: string | null
-          id: string
-          query_count: number | null
           subscription_plan: string | null
           user_type: string | null
+          airline: string | null
+          query_count: number | null
         }
         Insert: {
-          airline?: string | null
+          id: string
           created_at?: string
           full_name?: string | null
-          id: string
-          query_count?: number | null
           subscription_plan?: string | null
           user_type?: string | null
+          airline?: string | null
+          query_count?: number | null
         }
         Update: {
-          airline?: string | null
+          id?: string
           created_at?: string
           full_name?: string | null
-          id?: string
-          query_count?: number | null
           subscription_plan?: string | null
           user_type?: string | null
+          airline?: string | null
+          query_count?: number | null
         }
-        Relationships: []
       }
     }
     Views: {

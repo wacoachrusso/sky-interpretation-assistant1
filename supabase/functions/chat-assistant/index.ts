@@ -2,13 +2,14 @@ import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
-const assistantId = "asst_YdZtVHPSq6TIYKRkKcOqtwzn"; 
+const ASSISTANT_ID = "asst_YdZtVHPSq6TIYKRkKcOqtwzn";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Format instructions for consistent responses
 const formatInstructions = `
 Please format your responses for maximum readability:
 
@@ -97,7 +98,7 @@ serve(async (req) => {
         'OpenAI-Beta': 'assistants=v2'
       },
       body: JSON.stringify({
-        assistant_id: assistantId
+        assistant_id: ASSISTANT_ID
       })
     });
 

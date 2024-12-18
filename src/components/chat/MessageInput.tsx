@@ -1,5 +1,4 @@
-import * as React from 'react'
-const { useState, useEffect } = React
+import { useState, useEffect } from 'react'
 import { Button } from '../ui/button'
 import { Textarea } from '../ui/textarea'
 import { Send, Mic, MicOff } from 'lucide-react'

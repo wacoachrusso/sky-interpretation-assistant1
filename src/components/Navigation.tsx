@@ -32,10 +32,9 @@ export const Navigation = () => {
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate("/")}>
             <img
-              src="./assets/skyguide-logo.png"
-              alt="SkyGuide"
+              src="/lovable-uploads/4d0b5f1f-ee3c-422d-81df-9db600490aec.png"
+              alt="SkyGuide Logo"
               className="h-8"
-              loading="eager"
             />
             <span className="text-xl font-bold text-primary">SkyGuide</span>
           </div>
@@ -53,19 +52,12 @@ export const Navigation = () => {
                 </NavigationMenuItem>
               )}
               <NavigationMenuItem>
-                <Button 
-                  variant="outline"
-                  onClick={() => navigate("/login")}
-                  className="bg-[#1B365D] text-white hover:bg-[#1B365D]/90"
-                >
+                <Button variant="ghost" onClick={() => navigate("/login")}>
                   Login
                 </Button>
               </NavigationMenuItem>
               <NavigationMenuItem>
-                <Button 
-                  onClick={() => navigate("/signup")}
-                  className="bg-green-500 text-white hover:bg-green-600"
-                >
+                <Button onClick={() => navigate("/signup")}>
                   Sign Up
                 </Button>
               </NavigationMenuItem>

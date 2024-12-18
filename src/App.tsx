@@ -9,7 +9,6 @@ import LoginForm from "./components/LoginForm";
 import Settings from "./pages/Settings";
 import RegistrationForm from "./components/RegistrationForm";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
-import { SettingsProvider } from "./contexts/SettingsContext";
 
 const queryClient = new QueryClient();
 
@@ -35,12 +34,11 @@ const ProtectedRoute = ({ children }) => {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
-      <SettingsProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/signup" element={<RegistrationForm />} />
             <Route path="/login" element={<LoginForm />} />
@@ -60,10 +58,9 @@ const App = () => (
                 </ProtectedRoute>
               } 
             />
-            </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
-      </SettingsProvider>
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
     </AuthProvider>
   </QueryClientProvider>
 );

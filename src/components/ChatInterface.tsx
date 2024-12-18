@@ -1,10 +1,11 @@
-import * as React from 'react'
-const { useRef, useState, useEffect } = React
+import { useRef, useState, useEffect } from 'react'
 import { ChatLayout } from './chat/ChatLayout'
 import { useConversations } from '@/hooks/useConversations'
 import { useMessages } from '@/hooks/useMessages'
 import { createMockMessage } from '@/lib/mock-data'
 import { supabase } from '@/integrations/supabase/client'
+import { useAuth } from '@/contexts/AuthContext'
+import { useToast } from '@/hooks/use-toast'
 
 export default function ChatInterface() {
   const [input, setInput] = useState('')
@@ -12,6 +13,8 @@ export default function ChatInterface() {
   const [isNewMessage, setIsNewMessage] = useState(false)
   const [pendingMessage, setPendingMessage] = useState<Message | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const { isAuthenticated } = useAuth()
+  const { toast } = useToast()
   
   const { 
     conversations, 
@@ -29,37 +32,82 @@ export default function ChatInterface() {
   } = useMessages()
 
   // Update conversation title after first message
-  useEffect(() => {
-    const updateConversationTitle = async () => {
-      if (currentConversation && messages.length === 2) {
-        console.log('Updating conversation title based on first message')
-        const title = messages[0].content.slice(0, 50) + '...'
-        const { error } = await supabase
-          .from('conversations')
-          .update({ title })
-          .eq('id', currentConversation)
-
-        if (error) {
-          console.error('Error updating conversation title:', error)
-        }
+  const updateTitle = async (id: string, content: string) => {
+    try {
+      // Extract first line or first 50 chars for title
+      const title = content.split('\n')[0].slice(0, 50);
+      if (!title.trim()) return;
+      
+      await updateConversationTitle(id, title)
+    } catch (error) {
+      console.error('Error updating conversation title:', error)
+      // Only show toast for network errors
+      if (error?.message?.includes('Failed to fetch')) {
+        toast({
+          title: 'Warning',
+          description: 'Failed to update chat title. This won\'t affect your conversation.',
+          variant: 'destructive',
+          duration: 3000
+        })
       }
     }
+  }
 
-    updateConversationTitle()
-  }, [messages, currentConversation])
+  useEffect(() => {
+    if (currentConversation && messages.length === 1 && !isLoading) {
+      const userMessage = messages[0]
+      if (userMessage.role === 'user') {
+        updateTitle(currentConversation, userMessage.content)
+      }
+    }
+  }, [messages, currentConversation, isLoading])
+
+  useEffect(() => {
+    if (!isAuthenticated && process.env.NODE_ENV !== 'development') {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to continue",
+        variant: "destructive"
+      })
+      return
+    }
+
+    const initializeChat = async () => {
+      if (conversations.length === 0) {
+        await createNewChat()
+      }
+    }
+    initializeChat()
+  }, [conversations.length, isAuthenticated])
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault()
     if (currentConversation) {
+      if (!input.trim()) return
+      
+      const trimmedInput = input.trim()
+      setInput('')  // Clear input immediately for better UX
+
       // Create and display pending user message immediately
-      const userMessage = createMockMessage(input, 'user', currentConversation)
+      const userMessage = createMockMessage(trimmedInput, 'user', currentConversation)
       setPendingMessage(userMessage)
       
       console.log('Sending message in conversation:', currentConversation)
       setIsNewMessage(true)
-      await sendMessage(input, currentConversation)
-      setInput('')
-      setPendingMessage(null)
+      try {
+        await sendMessage(trimmedInput, currentConversation)
+      } catch (error) {
+        console.error('Error sending message:', error)
+        toast({
+          title: 'Error',
+          description: handleError(error),
+          variant: 'destructive',
+          duration: 3000
+        })
+        setInput(trimmedInput) // Restore input on error
+      } finally {
+        setPendingMessage(null)
+      }
     }
   }
 

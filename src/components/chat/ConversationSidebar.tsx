@@ -29,10 +29,9 @@ export function ConversationSidebar({
       <div className="p-3 border-b border-[#4D4D4F]">
         <div className="flex items-center gap-2 px-2 py-1">
           <img
-            src="./assets/skyguide-logo.png"
-            alt="SkyGuide"
+            src="/lovable-uploads/4d0b5f1f-ee3c-422d-81df-9db600490aec.png"
+            alt="SkyGuide Logo"
             className="h-6"
-            loading="eager"
           />
           <span className="text-lg font-semibold text-white">SkyGuide</span>
         </div>

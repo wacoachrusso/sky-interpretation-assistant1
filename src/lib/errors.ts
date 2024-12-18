@@ -23,16 +23,39 @@ export class NetworkError extends ChatError {
   }
 }
 
-export function handleError(error: any) {
+export class SupabaseError extends Error {
+  constructor(message: string, public code?: string) {
+    super(message)
+    this.name = 'SupabaseError'
+  }
+}
+
+export function handleError(error: any): string {
   console.error('Error occurred:', error)
   
   if (error instanceof ChatError) {
     return error.message
   }
   
+  if (error instanceof SupabaseError) {
+    return error.message
+  }
+  
   if (error?.message?.includes('Failed to fetch')) {
     return 'Network error occurred. Please check your connection.'
   }
+
+  if (error?.message?.includes('body stream already read')) {
+    return 'Network error - please try again'
+  }
   
   return 'An unexpected error occurred. Please try again.'
+}
+
+export function isRetryableError(error: any): boolean {
+  return (
+    error?.message?.includes('body stream already read') ||
+    error?.message?.includes('Failed to fetch') ||
+    error?.code === 'NETWORK_ERROR'
+  )
 }

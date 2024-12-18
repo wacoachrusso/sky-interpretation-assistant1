@@ -1,5 +1,4 @@
-import * as React from 'react'
-const { useState, useEffect, useCallback } = React
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useToast } from '@/components/ui/use-toast'
 import { Conversation } from '@/types/chat'
 import { fetchConversations, createConversation, deleteConversation } from '@/lib/api/conversations'
@@ -9,8 +8,9 @@ export const useConversations = () => {
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [currentConversation, setCurrentConversation] = useState<string | null>(null)
   const { toast } = useToast()
-  const isInitialized = React.useRef(false)
-  const isCreatingChat = React.useRef(false)
+  const isInitialized = useRef<boolean>(false)
+  const isCreatingChat = useRef(false)
+  const isLoadingConversations = useRef(false)
 
   // Load conversations from local storage on initial mount
   useEffect(() => {
@@ -22,12 +22,21 @@ export const useConversations = () => {
 
   const loadConversations = useCallback(async () => {
     try {
+      if (isLoadingConversations.current) return
+      isLoadingConversations.current = true
+
       const data = await fetchConversations()
-      setConversations(data)
+      if (Array.isArray(data)) {
+        setConversations(data)
+      } else if (data) {
+        setConversations([data])
+      }
       localStorage.setItem('conversations', JSON.stringify(data))
       
-      if (data.length > 0) {
-        setCurrentConversation(data[0].id)
+      if (Array.isArray(data) && data.length > 0) {
+        setCurrentConversation(data[0].id) 
+      } else if (data) {
+        setCurrentConversation(data.id)
       }
     } catch (error) {
       console.error('Error fetching conversations:', error)
@@ -36,6 +45,8 @@ export const useConversations = () => {
         description: handleError(error),
         variant: 'destructive',
       })
+    } finally {
+      isLoadingConversations.current = false
     }
   }, [])
 

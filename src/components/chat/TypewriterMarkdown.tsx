@@ -1,5 +1,4 @@
-import * as React from 'react';
-const { useState, useEffect } = React;
+import { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
@@ -13,7 +12,7 @@ interface TypewriterMarkdownProps {
 export function TypewriterMarkdown({ content, speed = 20, instant = false, onComplete }: TypewriterMarkdownProps) {
   const [displayedText, setDisplayedText] = useState('');
   const [currentIndex, setCurrentIndex] = useState(0);
-  const effectiveSpeed = speed / 12; // Make typewriter effect even faster
+  const effectiveSpeed = speed / 20; // Make typewriter effect much faster
 
   useEffect(() => {
     if (instant) {
