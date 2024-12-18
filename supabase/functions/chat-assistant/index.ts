@@ -29,8 +29,8 @@ serve(async (req) => {
       apiKey: openAIApiKey,
     });
 
-    // Create or retrieve thread
-    console.log('Creating or retrieving thread');
+    // Create thread
+    console.log('Creating thread');
     const thread = await openai.beta.threads.create();
     console.log('Thread ID:', thread.id);
 
