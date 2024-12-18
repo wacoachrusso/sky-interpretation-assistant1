@@ -10,16 +10,18 @@ export default defineConfig(({mode}) => ({
     hmr: true
   },
   build: {
-    assetsInclude: ['**/*.png', '**/*.ico'],
+    outDir: 'dist',
+    assetsDir: 'assets',
+    copyPublicDir: true,
     rollupOptions: {
       output: {
         assetFileNames: (assetInfo) => {
-          const info = assetInfo.name.split('.');
-          const ext = info[info.length - 1];
+          const info = assetInfo.name.split('.')
+          const ext = info[info.length - 1]
           if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(ext)) {
-            return `assets/images/[name]-[hash][extname]`;
+            return `assets/[name][extname]`
           }
-          return `assets/[name]-[hash][extname]`;
+          return `assets/[name][extname]`
         }
       }
     }
