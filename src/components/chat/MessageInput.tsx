@@ -11,16 +11,25 @@ interface MessageInputProps {
 }
 
 export function MessageInput({ input, isLoading, onInputChange, onSend }: MessageInputProps) {
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
+      if (input.trim()) {
+        onSend(e)
+      }
+    }
+  }
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (input.trim()) {
       onSend(e)
     }
   }
 
   return (
     <div className="max-w-3xl mx-auto w-full">
-      <form onSubmit={onSend} className="relative">
+      <form onSubmit={handleSubmit} className="relative">
         <Textarea
           value={input}
           onChange={(e) => onInputChange(e.target.value)}
