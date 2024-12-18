@@ -2,9 +2,37 @@ import { Button } from "@/components/ui/button";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { useNavigate } from "react-router-dom";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const Index = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const [userType, setUserType] = useState("");
+  const [airline, setAirline] = useState("");
+
+  const handleStartTrial = async () => {
+    if (!userType || !airline) {
+      toast({
+        title: "Missing Information",
+        description: "Please select both your role and airline before continuing.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      // If not logged in, navigate to signup with pre-selected options
+      navigate(`/signup?userType=${userType}&airline=${airline}&plan=trial`);
+    } else {
+      // If logged in, navigate directly to chat
+      navigate("/chat");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -21,12 +49,38 @@ const Index = () => {
               <p className="text-xl mb-8 text-gray-200">
                 Instant, accurate contract interpretation for airline professionals. Get the answers you need, when you need them.
               </p>
-              <Button 
-                onClick={() => navigate("/signup")}
-                className="bg-secondary hover:bg-secondary/90 text-lg px-8 py-6"
-              >
-                Start Your Journey
-              </Button>
+              <div className="space-y-4 max-w-md">
+                <Select value={userType} onValueChange={setUserType}>
+                  <SelectTrigger className="w-full bg-white text-gray-900">
+                    <SelectValue placeholder="Select Role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="flight-attendant">Flight Attendant</SelectItem>
+                    <SelectItem value="pilot">Pilot</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <Select value={airline} onValueChange={setAirline}>
+                  <SelectTrigger className="w-full bg-white text-gray-900">
+                    <SelectValue placeholder="Select Airline" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="united">United Airlines</SelectItem>
+                    <SelectItem value="american">American Airlines</SelectItem>
+                    <SelectItem value="southwest">Southwest Airlines</SelectItem>
+                    <SelectItem value="alaska">Alaska Airlines</SelectItem>
+                    <SelectItem value="spirit">Spirit Airlines</SelectItem>
+                    <SelectItem value="jetblue">JetBlue Airways</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <Button 
+                  onClick={handleStartTrial}
+                  className="bg-secondary hover:bg-secondary/90 text-lg px-8 py-6 w-full"
+                >
+                  Start Your Journey
+                </Button>
+              </div>
             </div>
             <div className="flex-1 flex justify-center">
               <img
