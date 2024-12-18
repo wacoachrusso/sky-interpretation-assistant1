@@ -10,16 +10,17 @@ interface MessageInputProps {
   onSend: (e: React.FormEvent) => void
 }
 
-declare global {
-  interface Window {
-    SpeechRecognition: new () => SpeechRecognition;
-    webkitSpeechRecognition: new () => SpeechRecognition;
-  }
+// Define the SpeechRecognition interface
+interface IWindow extends Window {
+  webkitSpeechRecognition: any;
+  SpeechRecognition: any;
 }
+
+declare let window: IWindow;
 
 export function MessageInput({ input, isLoading, onInputChange, onSend }: MessageInputProps) {
   const [isListening, setIsListening] = useState(false);
-  const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
+  const [recognition, setRecognition] = useState<any>(null);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -45,9 +46,9 @@ export function MessageInput({ input, isLoading, onInputChange, onSend }: Messag
         recognition.continuous = true;
         recognition.interimResults = true;
         
-        recognition.onresult = (event) => {
+        recognition.onresult = (event: any) => {
           const transcript = Array.from(event.results)
-            .map(result => result[0])
+            .map(result => (result as any)[0])
             .map(result => result.transcript)
             .join('');
           
