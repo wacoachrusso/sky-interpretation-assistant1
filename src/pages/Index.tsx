@@ -49,38 +49,6 @@ const Index = () => {
               <p className="text-xl mb-8 text-gray-200">
                 Instant, accurate contract interpretation for airline professionals. Get the answers you need, when you need them.
               </p>
-              <div className="space-y-4 max-w-md">
-                <Select value={userType} onValueChange={setUserType}>
-                  <SelectTrigger className="w-full bg-white text-gray-900">
-                    <SelectValue placeholder="Select Role" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="flight-attendant">Flight Attendant</SelectItem>
-                    <SelectItem value="pilot">Pilot</SelectItem>
-                  </SelectContent>
-                </Select>
-
-                <Select value={airline} onValueChange={setAirline}>
-                  <SelectTrigger className="w-full bg-white text-gray-900">
-                    <SelectValue placeholder="Select Airline" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="united">United Airlines</SelectItem>
-                    <SelectItem value="american">American Airlines</SelectItem>
-                    <SelectItem value="southwest">Southwest Airlines</SelectItem>
-                    <SelectItem value="alaska">Alaska Airlines</SelectItem>
-                    <SelectItem value="spirit">Spirit Airlines</SelectItem>
-                    <SelectItem value="jetblue">JetBlue Airways</SelectItem>
-                  </SelectContent>
-                </Select>
-
-                <Button 
-                  onClick={handleStartTrial}
-                  className="bg-secondary hover:bg-secondary/90 text-lg px-8 py-6 w-full"
-                >
-                  Start Your Journey
-                </Button>
-              </div>
             </div>
             <div className="flex-1 flex justify-center">
               <img
@@ -106,12 +74,38 @@ const Index = () => {
                 <li>✓ Basic Features</li>
                 <li>✓ No Credit Card Required</li>
               </ul>
-              <Button 
-                onClick={() => navigate("/signup?plan=trial")}
-                className="w-full"
-              >
-                Start Free Trial
-              </Button>
+              <div className="space-y-4">
+                <Select value={userType} onValueChange={setUserType}>
+                  <SelectTrigger className="w-full bg-white text-gray-900 border-gray-300">
+                    <SelectValue placeholder="Select Role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="flight-attendant">Flight Attendant</SelectItem>
+                    <SelectItem value="pilot">Pilot</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <Select value={airline} onValueChange={setAirline}>
+                  <SelectTrigger className="w-full bg-white text-gray-900 border-gray-300">
+                    <SelectValue placeholder="Select Airline" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="united">United Airlines</SelectItem>
+                    <SelectItem value="american">American Airlines</SelectItem>
+                    <SelectItem value="southwest">Southwest Airlines</SelectItem>
+                    <SelectItem value="alaska">Alaska Airlines</SelectItem>
+                    <SelectItem value="spirit">Spirit Airlines</SelectItem>
+                    <SelectItem value="jetblue">JetBlue Airways</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <Button 
+                  onClick={handleStartTrial}
+                  className="w-full"
+                >
+                  Start Free Trial
+                </Button>
+              </div>
             </div>
             <div className="p-8 rounded-lg border bg-white">
               <h3 className="text-xl font-semibold mb-4">Monthly Plan</h3>
