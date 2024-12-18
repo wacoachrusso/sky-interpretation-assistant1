@@ -10,6 +10,7 @@ export const useMessages = () => {
 
   const fetchMessages = async (conversationId: string) => {
     try {
+      console.log('Fetching messages for conversation:', conversationId)
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) throw new Error('No user found')
 
@@ -22,6 +23,7 @@ export const useMessages = () => {
 
       if (error) throw error
 
+      console.log('Fetched messages:', data)
       const typedMessages = data.map(message => ({
         ...message,
         role: message.role as "user" | "assistant"
@@ -49,6 +51,7 @@ export const useMessages = () => {
     }
 
     setIsLoading(true)
+    console.log('Sending message:', input)
 
     try {
       const { data: { user } } = await supabase.auth.getUser()
@@ -68,19 +71,22 @@ export const useMessages = () => {
 
       if (messageError) throw messageError
 
+      console.log('User message saved:', messageData)
       const typedMessageData = { ...messageData, role: messageData.role as "user" | "assistant" } as Message
       const updatedMessages = [...messages, typedMessageData]
       setMessages(updatedMessages)
 
       // Call chat-assistant function
+      console.log('Calling chat-assistant function')
       const { data: functionData, error: functionError } = await supabase.functions.invoke('chat-assistant', {
         body: {
           messages: updatedMessages,
-          threadId: conversationId
+          conversationId: conversationId
         }
       })
 
       if (functionError) throw functionError
+      console.log('Assistant response:', functionData)
 
       // Save assistant message
       const { data: assistantData, error: assistantError } = await supabase
@@ -96,6 +102,7 @@ export const useMessages = () => {
 
       if (assistantError) throw assistantError
 
+      console.log('Assistant message saved:', assistantData)
       const typedAssistantData = { ...assistantData, role: assistantData.role as "user" | "assistant" } as Message
       setMessages([...updatedMessages, typedAssistantData])
 

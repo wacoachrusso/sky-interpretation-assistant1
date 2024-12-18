@@ -3,6 +3,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import OpenAI from "https://deno.land/x/openai@v4.24.0/mod.ts";
 
 const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+const assistantId = "asst_YdZtVHPSq6TIYKRkKcOqtwzn";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -28,9 +29,10 @@ serve(async (req) => {
       apiKey: openAIApiKey,
     });
 
+    // Create or retrieve thread
     console.log('Creating or retrieving thread');
     const thread = threadId 
-      ? { id: threadId }
+      ? await openai.beta.threads.retrieve(threadId)
       : await openai.beta.threads.create();
     
     console.log('Thread ID:', thread.id);
@@ -49,8 +51,7 @@ serve(async (req) => {
     // Run the assistant
     console.log('Starting assistant run');
     const run = await openai.beta.threads.runs.create(thread.id, {
-      assistant_id: "asst_YdZtVHPSq6TIYKRkKcOqtwzn",
-      instructions: "You are a helpful AI assistant focused on aviation and crew-related questions. Respond concisely and clearly.",
+      assistant_id: assistantId,
     });
 
     // Wait for the run to complete
@@ -74,9 +75,12 @@ serve(async (req) => {
 
     // Get the assistant's response
     console.log('Retrieving assistant response');
-    const messagesResponse = await openai.beta.threads.messages.list(thread.id);
-    const assistantMessage = messagesResponse.data[0];
+    const messagesResponse = await openai.beta.threads.messages.list(thread.id, {
+      limit: 1,
+      order: 'desc',
+    });
     
+    const assistantMessage = messagesResponse.data[0];
     console.log('Assistant response:', assistantMessage);
 
     return new Response(
