@@ -72,7 +72,13 @@ export default function ChatInterface() {
 
       if (error) throw error
 
-      setMessages(data)
+      // Type assertion to ensure the role is either "user" or "assistant"
+      const typedMessages = data.map(message => ({
+        ...message,
+        role: message.role as "user" | "assistant"
+      })) as Message[]
+
+      setMessages(typedMessages)
     } catch (error) {
       console.error('Error fetching messages:', error)
       toast({
@@ -124,13 +130,13 @@ export default function ChatInterface() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) throw new Error('No user found')
 
-      // Save user message to database
+      // Save user message to database with explicit role type
       const { data: messageData, error: messageError } = await supabase
         .from('messages')
         .insert([{
           conversation_id: currentConversation,
           content: messageContent,
-          role: 'user',
+          role: 'user' as const,
           user_id: user.id
         }])
         .select()
@@ -138,8 +144,9 @@ export default function ChatInterface() {
 
       if (messageError) throw messageError
 
-      // Update messages state
-      const updatedMessages = [...messages, messageData]
+      // Type assertion for the message data
+      const typedMessageData = { ...messageData, role: messageData.role as "user" | "assistant" } as Message
+      const updatedMessages = [...messages, typedMessageData]
       setMessages(updatedMessages)
 
       // Call OpenAI assistant
@@ -159,13 +166,13 @@ export default function ChatInterface() {
 
       const { message: assistantMessage } = await response.json()
 
-      // Save assistant message to database
+      // Save assistant message to database with explicit role type
       const { data: assistantData, error: assistantError } = await supabase
         .from('messages')
         .insert([{
           conversation_id: currentConversation,
           content: assistantMessage.content,
-          role: 'assistant',
+          role: 'assistant' as const,
           user_id: user.id
         }])
         .select()
@@ -173,8 +180,9 @@ export default function ChatInterface() {
 
       if (assistantError) throw assistantError
 
-      // Update messages state with assistant response
-      setMessages([...updatedMessages, assistantData])
+      // Type assertion for the assistant message
+      const typedAssistantData = { ...assistantData, role: assistantData.role as "user" | "assistant" } as Message
+      setMessages([...updatedMessages, typedAssistantData])
 
       // Update conversation last_message_at
       await supabase
