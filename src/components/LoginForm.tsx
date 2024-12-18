@@ -33,21 +33,31 @@ const LoginForm = () => {
     if (!validateForm()) return;
     
     setIsLoading(true);
-    console.log("Attempting login with email:", formData.email);
+    const email = formData.email.trim().toLowerCase();
+    console.log("Attempting login with email:", email);
     
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: formData.email.trim().toLowerCase(),
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
         password: formData.password,
       });
 
       if (error) {
-        console.error('Login error details:', error);
-        throw error;
+        console.error('Login error:', error.message);
+        let errorMessage = "Invalid email or password";
+        
+        if (error.message.includes("invalid_credentials")) {
+          errorMessage = "Invalid email or password. Please try again.";
+        }
+        
+        toast({
+          title: "Login Failed",
+          description: errorMessage,
+          variant: "destructive",
+        });
+        return;
       }
 
-      console.log('Login successful:', data);
-      
       toast({
         title: "Login Successful",
         description: "Welcome back!",
@@ -55,17 +65,12 @@ const LoginForm = () => {
 
       // Redirect to chat interface after successful login
       navigate("/chat");
-    } catch (error) {
-      console.error('Login error:', error);
-      
-      let errorMessage = "Invalid email or password";
-      if (error.message && error.message.includes("invalid_credentials")) {
-        errorMessage = "Invalid email or password. Please try again.";
-      }
+    } catch (error: any) {
+      console.error('Unexpected error during login:', error);
       
       toast({
         title: "Login Failed",
-        description: errorMessage,
+        description: "An unexpected error occurred. Please try again.",
         variant: "destructive",
       });
     } finally {
