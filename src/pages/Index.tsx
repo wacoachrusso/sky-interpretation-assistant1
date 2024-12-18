@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { NavigationMenu } from "@/components/Navigation";
+import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { useNavigate } from "react-router-dom";
 
@@ -8,7 +8,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <NavigationMenu />
+      <Navigation />
       
       {/* Hero Section */}
       <section className="bg-primary py-20">
