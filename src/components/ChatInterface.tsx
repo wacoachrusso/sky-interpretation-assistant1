@@ -1,25 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { Button } from './ui/button'
-import { Input } from './ui/input'
-import { ScrollArea } from './ui/scroll-area'
 import { Sidebar } from './ui/sidebar'
 import { useToast } from './ui/use-toast'
-import { Search } from 'lucide-react'
 import { supabase } from '@/integrations/supabase/client'
-
-interface Message {
-  id: string
-  role: 'user' | 'assistant'
-  content: string
-  created_at: string
-}
-
-interface Conversation {
-  id: string
-  title: string
-  last_message_at: string
-}
+import { Message, Conversation } from '@/types/chat'
+import { ConversationList } from './chat/ConversationList'
+import { MessageList } from './chat/MessageList'
+import { MessageInput } from './chat/MessageInput'
 
 export default function ChatInterface() {
   const [conversations, setConversations] = useState<Conversation[]>([])
@@ -30,30 +16,30 @@ export default function ChatInterface() {
   const [searchTerm, setSearchTerm] = useState('')
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const { toast } = useToast()
-  const navigate = useNavigate()
 
-  // Fetch conversations on mount
   useEffect(() => {
     fetchConversations()
   }, [])
 
-  // Fetch messages when conversation changes
   useEffect(() => {
     if (currentConversation) {
       fetchMessages(currentConversation)
     }
   }, [currentConversation])
 
-  // Scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
   const fetchConversations = async () => {
     try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error('No user found')
+
       const { data, error } = await supabase
         .from('conversations')
         .select('*')
+        .eq('user_id', user.id)
         .order('last_message_at', { ascending: false })
 
       if (error) throw error
@@ -74,10 +60,14 @@ export default function ChatInterface() {
 
   const fetchMessages = async (conversationId: string) => {
     try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error('No user found')
+
       const { data, error } = await supabase
         .from('messages')
         .select('*')
         .eq('conversation_id', conversationId)
+        .eq('user_id', user.id)
         .order('created_at', { ascending: true })
 
       if (error) throw error
@@ -95,9 +85,15 @@ export default function ChatInterface() {
 
   const createNewChat = async () => {
     try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error('No user found')
+
       const { data, error } = await supabase
         .from('conversations')
-        .insert([{ title: 'New Chat' }])
+        .insert([{ 
+          title: 'New Chat',
+          user_id: user.id
+        }])
         .select()
         .single()
 
@@ -125,13 +121,17 @@ export default function ChatInterface() {
     setInput('')
 
     try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error('No user found')
+
       // Save user message to database
       const { data: messageData, error: messageError } = await supabase
         .from('messages')
         .insert([{
           conversation_id: currentConversation,
           content: messageContent,
-          role: 'user'
+          role: 'user',
+          user_id: user.id
         }])
         .select()
         .single()
@@ -165,7 +165,8 @@ export default function ChatInterface() {
         .insert([{
           conversation_id: currentConversation,
           content: assistantMessage.content,
-          role: 'assistant'
+          role: 'assistant',
+          user_id: user.id
         }])
         .select()
         .single()
@@ -180,6 +181,7 @@ export default function ChatInterface() {
         .from('conversations')
         .update({ last_message_at: new Date().toISOString() })
         .eq('id', currentConversation)
+        .eq('user_id', user.id)
 
     } catch (error) {
       console.error('Error sending message:', error)
@@ -193,90 +195,30 @@ export default function ChatInterface() {
     }
   }
 
-  const filteredConversations = conversations.filter(conv =>
-    conv.title.toLowerCase().includes(searchTerm.toLowerCase())
-  )
-
   return (
     <div className="flex h-screen bg-background">
-      {/* Sidebar */}
       <Sidebar className="w-64 p-4 border-r">
-        <div className="space-y-4">
-          <Button
-            onClick={createNewChat}
-            className="w-full"
-            variant="outline"
-          >
-            New Chat
-          </Button>
-
-          <div className="relative">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search conversations..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-8"
-            />
-          </div>
-
-          <ScrollArea className="h-[calc(100vh-8rem)]">
-            <div className="space-y-2">
-              {filteredConversations.map((conv) => (
-                <Button
-                  key={conv.id}
-                  variant={currentConversation === conv.id ? "secondary" : "ghost"}
-                  className="w-full justify-start"
-                  onClick={() => setCurrentConversation(conv.id)}
-                >
-                  {conv.title}
-                </Button>
-              ))}
-            </div>
-          </ScrollArea>
-        </div>
+        <ConversationList
+          conversations={conversations}
+          currentConversation={currentConversation}
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          onConversationSelect={setCurrentConversation}
+          onNewChat={createNewChat}
+        />
       </Sidebar>
 
-      {/* Chat Area */}
       <div className="flex-1 flex flex-col">
-        <ScrollArea className="flex-1 p-4">
-          <div className="space-y-4">
-            {messages.map((message) => (
-              <div
-                key={message.id}
-                className={`flex ${
-                  message.role === 'assistant' ? 'justify-start' : 'justify-end'
-                }`}
-              >
-                <div
-                  className={`max-w-[80%] rounded-lg p-4 ${
-                    message.role === 'assistant'
-                      ? 'bg-secondary'
-                      : 'bg-primary text-primary-foreground'
-                  }`}
-                >
-                  {message.content}
-                </div>
-              </div>
-            ))}
-            <div ref={messagesEndRef} />
-          </div>
-        </ScrollArea>
-
-        {/* Input Area */}
-        <form onSubmit={sendMessage} className="p-4 border-t">
-          <div className="flex gap-2">
-            <Input
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Type your message..."
-              disabled={isLoading}
-            />
-            <Button type="submit" disabled={isLoading}>
-              Send
-            </Button>
-          </div>
-        </form>
+        <MessageList
+          messages={messages}
+          messagesEndRef={messagesEndRef}
+        />
+        <MessageInput
+          input={input}
+          isLoading={isLoading}
+          onInputChange={setInput}
+          onSend={sendMessage}
+        />
       </div>
     </div>
   )
