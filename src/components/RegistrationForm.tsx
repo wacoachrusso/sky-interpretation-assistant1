@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -16,11 +16,17 @@ const RegistrationForm = () => {
     password: "",
     userType: "",
     airline: "",
-    plan: "trial" // Changed default to trial
+    plan: "trial"
   });
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  // Add navigation to home page
+  useEffect(() => {
+    console.log("Navigating to home page");
+    navigate("/");
+  }, []); // Empty dependency array means this runs once when component mounts
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
