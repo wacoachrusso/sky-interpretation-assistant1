@@ -73,7 +73,6 @@ export default function ChatInterface() {
 
       if (error) throw error
 
-      // Type assertion to ensure the role is either "user" or "assistant"
       const typedMessages = data.map(message => ({
         ...message,
         role: message.role as "user" | "assistant"
@@ -131,12 +130,10 @@ export default function ChatInterface() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('No user found');
 
-      // Increment query count before sending message
+      // Increment query count
       const { error: updateError } = await supabase
         .from('profiles')
-        .update({ 
-          query_count: supabase.sql`query_count + 1` 
-        })
+        .update({ query_count: (await supabase.from('profiles').select('query_count').eq('id', user.id).single()).data!.query_count + 1 })
         .eq('id', user.id);
 
       if (updateError) throw updateError;
