@@ -102,17 +102,27 @@ export default function ChatInterface() {
 
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim() || !currentConversation || isLoading) return;
+    console.log('Sending message:', input);
+    
+    if (!input.trim() || !currentConversation || isLoading) {
+      console.log('Message not sent. Conditions:', {
+        inputEmpty: !input.trim(),
+        noConversation: !currentConversation,
+        isLoading
+      });
+      return;
+    }
 
     setIsLoading(true);
     const messageContent = input;
     setInput('');
 
     try {
+      console.log('Getting user data...');
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('No user found');
 
-      // Increment query count
+      console.log('Incrementing query count...');
       const { error: updateError } = await supabase
         .from('profiles')
         .update({ query_count: (await supabase.from('profiles').select('query_count').eq('id', user.id).single()).data!.query_count + 1 })
@@ -120,7 +130,7 @@ export default function ChatInterface() {
 
       if (updateError) throw updateError;
 
-      // Save user message
+      console.log('Saving user message...');
       const { data: messageData, error: messageError } = await supabase
         .from('messages')
         .insert([{
@@ -130,15 +140,15 @@ export default function ChatInterface() {
           user_id: user.id
         }])
         .select()
-        .single()
+        .single();
 
-      if (messageError) throw messageError
+      if (messageError) throw messageError;
 
-      const typedMessageData = { ...messageData, role: messageData.role as "user" | "assistant" } as Message
-      const updatedMessages = [...messages, typedMessageData]
-      setMessages(updatedMessages)
+      const typedMessageData = { ...messageData, role: messageData.role as "user" | "assistant" } as Message;
+      const updatedMessages = [...messages, typedMessageData];
+      setMessages(updatedMessages);
 
-      // Call OpenAI assistant
+      console.log('Calling OpenAI assistant...');
       const response = await fetch('/functions/v1/chat-assistant', {
         method: 'POST',
         headers: {
@@ -149,13 +159,17 @@ export default function ChatInterface() {
           messages: updatedMessages,
           threadId: currentConversation
         })
-      })
+      });
 
-      if (!response.ok) throw new Error('Failed to get assistant response')
+      if (!response.ok) {
+        console.error('Assistant response not ok:', response.status);
+        throw new Error('Failed to get assistant response');
+      }
 
-      const { message: assistantMessage } = await response.json()
+      const { message: assistantMessage } = await response.json();
+      console.log('Received assistant response:', assistantMessage);
 
-      // Save assistant message
+      console.log('Saving assistant message...');
       const { data: assistantData, error: assistantError } = await supabase
         .from('messages')
         .insert([{
@@ -165,19 +179,19 @@ export default function ChatInterface() {
           user_id: user.id
         }])
         .select()
-        .single()
+        .single();
 
-      if (assistantError) throw assistantError
+      if (assistantError) throw assistantError;
 
-      const typedAssistantData = { ...assistantData, role: assistantData.role as "user" | "assistant" } as Message
-      setMessages([...updatedMessages, typedAssistantData])
+      const typedAssistantData = { ...assistantData, role: assistantData.role as "user" | "assistant" } as Message;
+      setMessages([...updatedMessages, typedAssistantData]);
 
-      // Update conversation last_message_at
+      console.log('Updating conversation timestamp...');
       await supabase
         .from('conversations')
         .update({ last_message_at: new Date().toISOString() })
         .eq('id', currentConversation)
-        .eq('user_id', user.id)
+        .eq('user_id', user.id);
 
     } catch (error) {
       console.error('Error sending message:', error);
