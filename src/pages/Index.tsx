@@ -25,43 +25,55 @@ const Index = () => {
       return;
     }
 
-    const { data: { user } } = await supabase.auth.getUser();
-    console.log("Current user:", user);
-    
-    if (!user) {
-      console.log("Navigating to signup with params:", `userType=${userType}&airline=${airline}&plan=trial`);
-      navigate(`/signup?userType=${userType}&airline=${airline}&plan=trial`);
-    } else {
-      console.log("Navigating to chat");
-      navigate("/chat");
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      console.log("Current user:", user);
+      
+      if (!user) {
+        console.log("Navigating to signup with params:", `userType=${userType}&airline=${airline}&plan=trial`);
+        navigate(`/signup?userType=${userType}&airline=${airline}&plan=trial`);
+      } else {
+        console.log("Navigating to chat");
+        navigate("/chat");
+      }
+    } catch (error) {
+      console.error("Error checking auth status:", error);
     }
   };
 
   const handleChooseMonthly = async () => {
     console.log("Choosing monthly plan");
-    const { data: { user } } = await supabase.auth.getUser();
-    console.log("Current user:", user);
-    
-    if (!user) {
-      console.log("Navigating to signup with monthly plan");
-      navigate("/signup?plan=monthly");
-    } else {
-      console.log("Navigating to chat");
-      navigate("/chat");
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      console.log("Current user:", user);
+      
+      if (!user) {
+        console.log("Navigating to signup with monthly plan");
+        navigate("/signup?plan=monthly");
+      } else {
+        console.log("Navigating to chat");
+        navigate("/chat");
+      }
+    } catch (error) {
+      console.error("Error checking auth status:", error);
     }
   };
 
   const handleChooseAnnual = async () => {
     console.log("Choosing annual plan");
-    const { data: { user } } = await supabase.auth.getUser();
-    console.log("Current user:", user);
-    
-    if (!user) {
-      console.log("Navigating to signup with annual plan");
-      navigate("/signup?plan=annual");
-    } else {
-      console.log("Navigating to chat");
-      navigate("/chat");
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      console.log("Current user:", user);
+      
+      if (!user) {
+        console.log("Navigating to signup with annual plan");
+        navigate("/signup?plan=annual");
+      } else {
+        console.log("Navigating to chat");
+        navigate("/chat");
+      }
+    } catch (error) {
+      console.error("Error checking auth status:", error);
     }
   };
 
