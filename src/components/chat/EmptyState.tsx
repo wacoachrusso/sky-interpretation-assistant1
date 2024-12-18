@@ -4,7 +4,7 @@ import { ChatActions } from './ChatActions'
 export function EmptyState() {
   return (
     <div className="flex flex-col items-center justify-center h-full max-w-3xl mx-auto px-4">
-      <h1 className="text-4xl font-semibold text-white mb-8">What can I help with?</h1>
+      <h1 className="text-4xl font-semibold text-white mb-8">Know the contract</h1>
       <div className="w-full">
         <div className="relative">
           <div className="h-14 bg-[#40414F] rounded-lg w-full flex items-center px-4 text-[#8E8EA0]">

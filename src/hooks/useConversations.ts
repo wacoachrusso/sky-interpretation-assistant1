@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useToast } from '@/components/ui/use-toast'
 import { Conversation } from '@/types/chat'
-import { supabase } from '@/integrations/supabase/client'
+import { fetchConversations, createConversation } from '@/lib/api/conversations'
 import { handleError } from '@/lib/errors'
 
 export const useConversations = () => {
@@ -9,19 +9,11 @@ export const useConversations = () => {
   const [currentConversation, setCurrentConversation] = useState<string | null>(null)
   const { toast } = useToast()
 
-  const fetchConversations = useCallback(async () => {
+  const loadConversations = useCallback(async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) throw new Error('No user found')
-
-      const { data, error } = await supabase
-        .from('conversations')
-        .select('*')
-        .order('last_message_at', { ascending: false })
-
-      if (error) throw error
-
+      const data = await fetchConversations()
       setConversations(data)
+      
       if (data.length > 0 && !currentConversation) {
         setCurrentConversation(data[0].id)
       }
@@ -37,21 +29,7 @@ export const useConversations = () => {
 
   const createNewChat = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) throw new Error('No user found')
-
-      const { data, error } = await supabase
-        .from('conversations')
-        .insert([{
-          title: 'New Chat',
-          user_id: user.id,
-          last_message_at: new Date().toISOString()
-        }])
-        .select()
-        .single()
-
-      if (error) throw error
-
+      const data = await createConversation()
       setConversations([data, ...conversations])
       setCurrentConversation(data.id)
       return data.id
@@ -67,8 +45,8 @@ export const useConversations = () => {
   }
 
   useEffect(() => {
-    fetchConversations()
-  }, [])
+    loadConversations()
+  }, [loadConversations])
 
   return {
     conversations,

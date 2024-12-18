@@ -126,7 +126,7 @@ export function MessageInput({ input, isLoading, onInputChange, onSend }: Messag
   };
 
   return (
-    <div className="max-w-3xl mx-auto w-full px-4 md:px-0">
+    <div className="max-w-3xl mx-auto w-full px-2 sm:px-4">
       <form onSubmit={handleSubmit} className="relative">
         <Textarea
           value={input}
@@ -134,10 +134,10 @@ export function MessageInput({ input, isLoading, onInputChange, onSend }: Messag
           onKeyDown={handleKeyDown}
           placeholder="Message SkyGuide..."
           disabled={isLoading}
-          className="min-h-[60px] w-full pr-24 resize-none bg-[#40414F] border-0 focus-visible:ring-0 text-white placeholder:text-[#8E8EA0] rounded-lg text-sm md:text-base"
+          className="min-h-[48px] sm:min-h-[60px] w-full pr-20 sm:pr-24 resize-none bg-[#40414F] border-0 focus-visible:ring-0 text-white placeholder:text-[#8E8EA0] rounded-lg text-sm md:text-base"
           rows={1}
         />
-        <div className="absolute right-2 top-2 flex gap-2">
+        <div className="absolute right-2 top-1.5 sm:top-2 flex gap-2">
           <Button
             type="button"
             onClick={toggleDictation}

@@ -49,7 +49,7 @@ export function MessageList({ messages, messagesEndRef }: MessageListProps) {
   }
 
   return (
-    <div className="relative h-[calc(100vh-8rem)] bg-[#343541]">
+    <div className="relative h-[calc(100dvh-8rem)] bg-[#343541]">
       <div className="absolute inset-0 flex flex-col">
         <ScrollArea className="flex-1">
           <div className="min-h-full pb-32">
@@ -66,7 +66,7 @@ export function MessageList({ messages, messagesEndRef }: MessageListProps) {
                         : ''
                     }`}
                   >
-                    <div className={`${isMobile ? 'w-full px-2' : 'max-w-3xl mx-auto'} flex gap-4`}>
+                    <div className={`w-full px-2 sm:px-0 max-w-3xl mx-auto flex gap-3 sm:gap-4`}>
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
                         message.role === 'assistant'
                           ? 'bg-[#9b87f5]'
@@ -75,7 +75,7 @@ export function MessageList({ messages, messagesEndRef }: MessageListProps) {
                         {message.role === 'assistant' ? 'AI' : 'U'}
                       </div>
                       <div className="flex-1">
-                        <div className="flex justify-between items-start gap-4">
+                        <div className="flex justify-between items-start gap-2 sm:gap-4">
                           <div className={`text-[#ECECF1] leading-relaxed whitespace-pre-wrap ${
                             isMobile ? 'text-sm' : 'text-base'
                           }`}>
@@ -97,7 +97,7 @@ export function MessageList({ messages, messagesEndRef }: MessageListProps) {
                               variant="ghost"
                               size="icon"
                               onClick={() => handleDownload(message.content)}
-                              className="text-gray-400 hover:text-white shrink-0"
+                              className="text-gray-400 hover:text-white shrink-0 hidden sm:flex"
                             >
                               <Download className={`${isMobile ? 'h-4 w-4' : 'h-5 w-5'}`} />
                             </Button>
