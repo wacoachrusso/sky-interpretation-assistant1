@@ -17,7 +17,6 @@ export function MessageList({ messages, messagesEndRef }: MessageListProps) {
   const { toast } = useToast()
   const isMobile = useIsMobile()
 
-  // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     console.log('Scrolling to latest message')
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -41,8 +40,8 @@ export function MessageList({ messages, messagesEndRef }: MessageListProps) {
 
   return (
     <div className="relative flex-1 h-[calc(100vh-8rem)]">
-      <ScrollArea className="h-full pb-32 bg-[#343541]">
-        <div className="min-h-full">
+      <ScrollArea className="h-full pb-32 bg-[#343541] overflow-y-auto">
+        <div className="min-h-full relative">
           {messages.length === 0 ? (
             <EmptyState />
           ) : (
@@ -95,7 +94,7 @@ export function MessageList({ messages, messagesEndRef }: MessageListProps) {
           )}
         </div>
       </ScrollArea>
-      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-[#343541] to-transparent h-32 pointer-events-none" />
+      <div className="absolute bottom-0 left-0 right-0 h-32 pointer-events-none bg-gradient-to-t from-[#343541] via-[#343541]/80 to-transparent" />
     </div>
   )
 }
