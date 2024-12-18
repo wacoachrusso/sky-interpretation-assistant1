@@ -37,7 +37,7 @@ export function ChatLayout({
 }: ChatLayoutProps) {
   return (
     <SidebarProvider>
-      <div className="flex h-screen">
+      <div className="flex h-screen w-full">
         <QueryLimitChecker />
         <ConversationSidebar
           conversations={conversations}
