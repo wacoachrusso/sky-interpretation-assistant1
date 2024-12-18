@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Message } from '@/types/chat'
 import { ScrollArea } from '../ui/scroll-area'
 import { EmptyState } from './EmptyState'
@@ -17,6 +17,12 @@ export function MessageList({ messages, messagesEndRef }: MessageListProps) {
   const { toast } = useToast()
   const isMobile = useIsMobile()
 
+  // Auto-scroll to bottom when new messages arrive
+  useEffect(() => {
+    console.log('Scrolling to latest message')
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages])
+
   const handleDownload = (content: string) => {
     const blob = new Blob([content], { type: 'text/plain' })
     const url = URL.createObjectURL(blob)
@@ -34,7 +40,7 @@ export function MessageList({ messages, messagesEndRef }: MessageListProps) {
   }
 
   return (
-    <ScrollArea className="h-full">
+    <ScrollArea className="h-[calc(100vh-8rem)] pb-32">
       <div className="min-h-full">
         {messages.length === 0 ? (
           <EmptyState />
