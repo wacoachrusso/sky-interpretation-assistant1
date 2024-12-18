@@ -15,18 +15,39 @@ const LoginForm = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  const validateForm = () => {
+    if (!formData.email || !formData.password) {
+      toast({
+        title: "Missing Fields",
+        description: "Please fill in all fields",
+        variant: "destructive",
+      });
+      return false;
+    }
+    return true;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!validateForm()) return;
+    
     setIsLoading(true);
+    console.log("Attempting login with email:", formData.email);
     
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
-        email: formData.email,
+        email: formData.email.trim().toLowerCase(),
         password: formData.password,
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Login error details:', error);
+        throw error;
+      }
 
+      console.log('Login successful:', data);
+      
       toast({
         title: "Login Successful",
         description: "Welcome back!",
@@ -36,9 +57,15 @@ const LoginForm = () => {
       navigate("/chat");
     } catch (error) {
       console.error('Login error:', error);
+      
+      let errorMessage = "Invalid email or password";
+      if (error.message && error.message.includes("invalid_credentials")) {
+        errorMessage = "Invalid email or password. Please try again.";
+      }
+      
       toast({
         title: "Login Failed",
-        description: error.message,
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -69,6 +96,8 @@ const LoginForm = () => {
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               required
+              className="lowercase"
+              autoComplete="email"
             />
             <Input
               type="password"
@@ -76,6 +105,7 @@ const LoginForm = () => {
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               required
+              autoComplete="current-password"
             />
             <Button 
               type="submit" 
