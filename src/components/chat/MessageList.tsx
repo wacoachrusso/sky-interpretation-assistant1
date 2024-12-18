@@ -1,12 +1,12 @@
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
 import { Message } from '@/types/chat'
 import { ScrollArea } from '../ui/scroll-area'
 import { EmptyState } from './EmptyState'
+import { TypewriterMarkdown } from './TypewriterMarkdown'
 import { Button } from '../ui/button'
 import { Download } from 'lucide-react'
 import { useToast } from '../ui/use-toast'
 import { useIsMobile } from '@/hooks/use-mobile'
-import { TypewriterMarkdown } from './TypewriterMarkdown'
 import { LoadingMessage } from './LoadingMessage'
 
 interface MessageListProps {
