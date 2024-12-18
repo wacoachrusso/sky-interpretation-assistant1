@@ -48,7 +48,11 @@ const RegistrationFormFields = ({ formData, onChange }: RegistrationFormFieldsPr
             id="trial"
             checked={formData.plan === 'trial'}
             onCheckedChange={(checked) => {
-              if (checked) onChange('plan', 'trial');
+              if (checked) {
+                onChange('plan', 'trial');
+              } else {
+                onChange('plan', '');
+              }
             }}
           />
           <Label htmlFor="trial">Start with Free Trial (2 queries)</Label>

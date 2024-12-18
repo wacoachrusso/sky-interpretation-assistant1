@@ -14,7 +14,7 @@ const RegistrationForm = () => {
     password: "",
     userType: searchParams.get("userType") || "",
     airline: searchParams.get("airline") || "",
-    plan: searchParams.get("expired") ? "monthly" : (searchParams.get("plan") || "trial")
+    plan: "" // Initialize with empty string instead of a default value
   });
   
   const [isLoading, setIsLoading] = useState(false);
@@ -23,6 +23,16 @@ const RegistrationForm = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!formData.plan) {
+      toast({
+        title: "Plan Selection Required",
+        description: "Please select a subscription plan to continue.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
     
     try {
@@ -101,7 +111,7 @@ const RegistrationForm = () => {
           className="w-full bg-primary hover:bg-primary/90 text-lg py-6"
           disabled={isLoading}
         >
-          {isLoading ? "Creating Account..." : "Start Your Free Trial"}
+          {isLoading ? "Creating Account..." : "Create Account"}
         </Button>
         
         <p className="text-center text-sm text-muted-foreground">
