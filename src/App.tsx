@@ -6,7 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import Index from "./pages/Index";
 import RegistrationForm from "./components/RegistrationForm";
-import ContractInterpreter from "./components/ContractInterpreter";
+import ChatInterface from "./components/ChatInterface";
 import LoginForm from "./components/LoginForm";
 import { supabase } from "./integrations/supabase/client";
 
@@ -60,7 +60,7 @@ const App = () => (
             path="/chat"
             element={
               <ProtectedRoute>
-                <ContractInterpreter />
+                <ChatInterface />
               </ProtectedRoute>
             }
           />
