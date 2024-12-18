@@ -3,8 +3,6 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import OpenAI from "https://deno.land/x/openai@v4.24.0/mod.ts";
 
 const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
-const supabaseUrl = Deno.env.get('SUPABASE_URL');
-const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -40,10 +38,10 @@ serve(async (req) => {
       content: lastMessage.content,
     });
 
-    // Run the assistant with your specific Assistant ID
+    // Run the assistant with the specific Assistant ID
     const run = await openai.beta.threads.runs.create(thread.id, {
-      assistant_id: "asst_YdZtVHPSq6TIYKRkKcOqtwzn", // Your specific Assistant ID
-      instructions: "You are a helpful AI assistant. Respond concisely and clearly.",
+      assistant_id: "asst_YdZtVHPSq6TIYKRkKcOqtwzn",
+      instructions: "You are a helpful AI assistant focused on aviation and crew-related questions. Respond concisely and clearly.",
     });
 
     // Wait for the run to complete
