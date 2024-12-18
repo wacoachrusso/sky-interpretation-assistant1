@@ -2,6 +2,7 @@ import React from 'react'
 import { Message } from '@/types/chat'
 import { ScrollArea } from '../ui/scroll-area'
 import { EmptyState } from './EmptyState'
+import { TypewriterText } from './TypewriterText'
 
 interface MessageListProps {
   messages: Message[]
@@ -34,7 +35,11 @@ export function MessageList({ messages, messagesEndRef }: MessageListProps) {
                     {message.role === 'assistant' ? 'AI' : 'U'}
                   </div>
                   <div className="text-[#ECECF1] leading-relaxed whitespace-pre-wrap">
-                    {message.content}
+                    {message.role === 'assistant' ? (
+                      <TypewriterText text={message.content} />
+                    ) : (
+                      message.content
+                    )}
                   </div>
                 </div>
               </div>
