@@ -30,14 +30,24 @@ const Index = () => {
       console.log("Current user:", user);
       
       if (!user) {
-        console.log("Navigating to signup with params:", `userType=${userType}&airline=${airline}&plan=trial`);
-        navigate(`/signup?userType=${userType}&airline=${airline}&plan=trial`);
+        const params = new URLSearchParams({
+          userType,
+          airline,
+          plan: 'trial'
+        }).toString();
+        console.log("Navigating to signup with params:", params);
+        navigate(`/signup?${params}`);
       } else {
         console.log("Navigating to chat");
         navigate("/chat");
       }
     } catch (error) {
       console.error("Error checking auth status:", error);
+      toast({
+        title: "Error",
+        description: "An error occurred. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -48,14 +58,22 @@ const Index = () => {
       console.log("Current user:", user);
       
       if (!user) {
+        const params = new URLSearchParams({
+          plan: 'monthly'
+        }).toString();
         console.log("Navigating to signup with monthly plan");
-        navigate("/signup?plan=monthly");
+        navigate(`/signup?${params}`);
       } else {
         console.log("Navigating to chat");
         navigate("/chat");
       }
     } catch (error) {
       console.error("Error checking auth status:", error);
+      toast({
+        title: "Error",
+        description: "An error occurred. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -66,14 +84,22 @@ const Index = () => {
       console.log("Current user:", user);
       
       if (!user) {
+        const params = new URLSearchParams({
+          plan: 'annual'
+        }).toString();
         console.log("Navigating to signup with annual plan");
-        navigate("/signup?plan=annual");
+        navigate(`/signup?${params}`);
       } else {
         console.log("Navigating to chat");
         navigate("/chat");
       }
     } catch (error) {
       console.error("Error checking auth status:", error);
+      toast({
+        title: "Error",
+        description: "An error occurred. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
