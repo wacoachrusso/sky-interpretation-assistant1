@@ -39,9 +39,6 @@ export function MessageInput({ input, isLoading, onInputChange, onSend }: Messag
           <Send className="h-4 w-4" />
         </Button>
       </form>
-      <div className="text-xs text-center mt-2 text-[#8E8EA0]">
-        SkyGuide can make mistakes. Consider checking important information.
-      </div>
     </div>
   )
 }

@@ -1,6 +1,7 @@
 import React from 'react'
 import { Message } from '@/types/chat'
 import { ScrollArea } from '../ui/scroll-area'
+import { EmptyState } from './EmptyState'
 
 interface MessageListProps {
   messages: Message[]
@@ -9,19 +10,10 @@ interface MessageListProps {
 
 export function MessageList({ messages, messagesEndRef }: MessageListProps) {
   return (
-    <ScrollArea className="flex-1">
+    <ScrollArea className="flex-1 bg-[#343541]">
       <div className="w-full">
         {messages.length === 0 ? (
-          <div className="flex items-center justify-center h-[calc(100vh-80px)]">
-            <div className="text-center space-y-3">
-              <img
-                src="/lovable-uploads/4d0b5f1f-ee3c-422d-81df-9db600490aec.png"
-                alt="SkyGuide Logo"
-                className="h-12 mx-auto opacity-50"
-              />
-              <h3 className="text-xl font-semibold text-white">How can I help you today?</h3>
-            </div>
-          </div>
+          <EmptyState />
         ) : (
           <div className="pb-32 pt-4">
             {messages.map((message) => (
