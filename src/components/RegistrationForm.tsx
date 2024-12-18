@@ -12,9 +12,9 @@ const RegistrationForm = () => {
     fullName: "",
     email: "",
     password: "",
-    userType: searchParams.get("userType") || "",
-    airline: searchParams.get("airline") || "",
-    plan: "" // Initialize with empty string instead of a default value
+    userType: "",
+    airline: "",
+    plan: ""
   });
   
   const [isLoading, setIsLoading] = useState(false);
@@ -28,6 +28,15 @@ const RegistrationForm = () => {
       toast({
         title: "Plan Selection Required",
         description: "Please select a subscription plan to continue.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!formData.userType || !formData.airline) {
+      toast({
+        title: "Missing Information",
+        description: "Please select both your job title and airline.",
         variant: "destructive",
       });
       return;
@@ -51,6 +60,8 @@ const RegistrationForm = () => {
           .update({
             full_name: formData.fullName,
             subscription_plan: formData.plan,
+            user_type: formData.userType,
+            airline: formData.airline,
             query_count: 0
           })
           .eq('id', authData.user.id);
@@ -62,6 +73,7 @@ const RegistrationForm = () => {
           description: "Welcome to SkyGuide! Redirecting you to the chat interface...",
         });
 
+        // Redirect to chat interface immediately after successful registration
         navigate("/chat");
       }
     } catch (error) {
