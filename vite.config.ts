@@ -10,6 +10,16 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     assetsInclude: ['**/*.png'], // Ensure PNG files are included in the build
+    rollupOptions: {
+      output: {
+        assetFileNames: (assetInfo) => {
+          if (assetInfo.name === 'favicon.png') {
+            return 'favicon.png';
+          }
+          return 'assets/[name]-[hash][extname]';
+        }
+      }
+    }
   },
   plugins: [
     react(),
