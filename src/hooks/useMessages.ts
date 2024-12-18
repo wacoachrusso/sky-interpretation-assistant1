@@ -57,6 +57,18 @@ export const useMessages = () => {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) throw new Error('No user found')
 
+      // Update conversation title with first user message
+      if (messages.length === 0) {
+        const { error: titleError } = await supabase
+          .from('conversations')
+          .update({ title: input })
+          .eq('id', conversationId)
+          .eq('user_id', user.id)
+
+        if (titleError) throw titleError
+        console.log('Updated conversation title:', input)
+      }
+
       // Save user message
       const { data: messageData, error: messageError } = await supabase
         .from('messages')
