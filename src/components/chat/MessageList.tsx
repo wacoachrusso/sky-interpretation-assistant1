@@ -3,6 +3,9 @@ import { Message } from '@/types/chat'
 import { ScrollArea } from '../ui/scroll-area'
 import { EmptyState } from './EmptyState'
 import { TypewriterText } from './TypewriterText'
+import { Button } from '../ui/button'
+import { Download } from 'lucide-react'
+import { useToast } from '../ui/use-toast'
 
 interface MessageListProps {
   messages: Message[]
@@ -10,6 +13,24 @@ interface MessageListProps {
 }
 
 export function MessageList({ messages, messagesEndRef }: MessageListProps) {
+  const { toast } = useToast()
+
+  const handleDownload = (content: string) => {
+    const blob = new Blob([content], { type: 'text/plain' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'skyguide-response.txt'
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+
+    toast({
+      description: "Response downloaded successfully",
+    })
+  }
+
   return (
     <ScrollArea className="flex-1 bg-[#343541]">
       <div className="w-full">
@@ -34,9 +55,19 @@ export function MessageList({ messages, messagesEndRef }: MessageListProps) {
                   }`}>
                     {message.role === 'assistant' ? 'AI' : 'U'}
                   </div>
-                  <div className="text-[#ECECF1] leading-relaxed whitespace-pre-wrap">
+                  <div className="flex-1 text-[#ECECF1] leading-relaxed whitespace-pre-wrap">
                     {message.role === 'assistant' ? (
-                      <TypewriterText text={message.content} />
+                      <div className="flex justify-between items-start gap-4">
+                        <TypewriterText text={message.content} />
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleDownload(message.content)}
+                          className="text-gray-400 hover:text-white"
+                        >
+                          <Download className="h-4 w-4" />
+                        </Button>
+                      </div>
                     ) : (
                       message.content
                     )}

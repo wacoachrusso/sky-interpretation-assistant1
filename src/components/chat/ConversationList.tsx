@@ -26,6 +26,12 @@ export function ConversationList({
     conv.title.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
+  const truncateTitle = (title: string) => {
+    const words = title.split(' ')
+    if (words.length <= 6) return title
+    return words.slice(0, 6).join(' ') + '...'
+  }
+
   return (
     <div className="flex flex-col h-full">
       <div className="p-3">
@@ -65,7 +71,7 @@ export function ConversationList({
               onClick={() => onConversationSelect(conv.id)}
             >
               <MessageSquare className="w-4 h-4 mr-2" />
-              {conv.title}
+              <span className="truncate">{truncateTitle(conv.title)}</span>
             </Button>
           ))}
         </div>

@@ -10,6 +10,13 @@ interface MessageInputProps {
   onSend: (e: React.FormEvent) => void
 }
 
+declare global {
+  interface Window {
+    SpeechRecognition: new () => SpeechRecognition;
+    webkitSpeechRecognition: new () => SpeechRecognition;
+  }
+}
+
 export function MessageInput({ input, isLoading, onInputChange, onSend }: MessageInputProps) {
   const [isListening, setIsListening] = useState(false);
   const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
