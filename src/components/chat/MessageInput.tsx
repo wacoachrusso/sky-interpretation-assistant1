@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Button } from '../ui/button'
 import { Textarea } from '../ui/textarea'
 import { Send, Mic, MicOff } from 'lucide-react'
+import { useToast } from '@/hooks/use-toast'
 
 interface MessageInputProps {
   input: string
@@ -10,7 +11,6 @@ interface MessageInputProps {
   onSend: (e: React.FormEvent) => void
 }
 
-// Define the SpeechRecognition interface
 interface IWindow extends Window {
   webkitSpeechRecognition: any;
   SpeechRecognition: any;
@@ -21,6 +21,7 @@ declare let window: IWindow;
 export function MessageInput({ input, isLoading, onInputChange, onSend }: MessageInputProps) {
   const [isListening, setIsListening] = useState(false);
   const [recognition, setRecognition] = useState<any>(null);
+  const { toast } = useToast();
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -38,33 +39,76 @@ export function MessageInput({ input, isLoading, onInputChange, onSend }: Messag
     }
   }
 
+  const stopDictation = () => {
+    if (recognition) {
+      recognition.stop();
+      setRecognition(null);
+      setIsListening(false);
+    }
+  };
+
   const toggleDictation = () => {
     if (!isListening) {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (SpeechRecognition) {
-        const recognition = new SpeechRecognition();
-        recognition.continuous = true;
-        recognition.interimResults = true;
+        const newRecognition = new SpeechRecognition();
+        newRecognition.continuous = true;
+        newRecognition.interimResults = true;
         
-        recognition.onresult = (event: any) => {
-          const transcript = Array.from(event.results)
-            .map(result => (result as any)[0])
-            .map(result => result.transcript)
-            .join('');
-          
-          onInputChange(transcript);
+        // Keep existing input when starting dictation
+        let currentTranscript = input;
+        
+        newRecognition.onstart = () => {
+          console.log('Dictation started');
+          setIsListening(true);
         };
 
-        recognition.start();
-        setRecognition(recognition);
-        setIsListening(true);
+        newRecognition.onresult = (event: any) => {
+          const transcript = Array.from(event.results)
+            .map((result: any) => result[0].transcript)
+            .join(' ');
+          
+          // Combine existing input with new transcript
+          onInputChange(currentTranscript + ' ' + transcript);
+        };
+
+        newRecognition.onerror = (event: any) => {
+          console.error('Speech recognition error:', event.error);
+          toast({
+            title: "Dictation Error",
+            description: `Error: ${event.error}. Please try again.`,
+            variant: "destructive"
+          });
+          stopDictation();
+        };
+
+        newRecognition.onend = () => {
+          console.log('Dictation ended');
+          setIsListening(false);
+          setRecognition(null);
+        };
+
+        try {
+          newRecognition.start();
+          setRecognition(newRecognition);
+        } catch (error) {
+          console.error('Error starting dictation:', error);
+          toast({
+            title: "Dictation Error",
+            description: "Failed to start dictation. Please try again.",
+            variant: "destructive"
+          });
+          stopDictation();
+        }
       } else {
-        console.log('Speech recognition not supported');
+        toast({
+          title: "Not Supported",
+          description: "Speech recognition is not supported in your browser.",
+          variant: "destructive"
+        });
       }
     } else {
-      recognition?.stop();
-      setRecognition(null);
-      setIsListening(false);
+      stopDictation();
     }
   };
 
