@@ -64,6 +64,8 @@ const App = () => (
               </ProtectedRoute>
             }
           />
+          {/* Redirect any unknown routes to the home page */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
