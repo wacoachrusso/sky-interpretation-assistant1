@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { useToast } from '@/components/ui/use-toast'
 import { Message } from '@/types/chat'
-import { handleError } from '@/lib/errors'
 import { fetchMessages as fetchMessagesApi } from '@/lib/api/messages'
+import { handleError } from '@/lib/errors'
 import { saveUserMessage, saveAssistantMessage, callChatAssistant } from '@/lib/api/supabase'
 
 export const useMessages = () => {
@@ -10,12 +10,27 @@ export const useMessages = () => {
   const [isLoading, setIsLoading] = useState(false)
   const { toast } = useToast()
 
+  // Load messages from local storage for current conversation
+  const loadOfflineMessages = (conversationId: string) => {
+    const savedMessages = localStorage.getItem(`messages-${conversationId}`)
+    if (savedMessages) {
+      return JSON.parse(savedMessages)
+    }
+    return []
+  }
+
   const fetchMessages = async (conversationId: string | null) => {
     if (!conversationId) return
 
     try {
       console.log('Fetching messages for conversation:', conversationId)
-      const messages = await fetchMessagesApi(conversationId)
+      let messages
+      try {
+        messages = await fetchMessagesApi(conversationId)
+      } catch (error) {
+        console.log('Falling back to offline messages')
+        messages = loadOfflineMessages(conversationId)
+      }
       setMessages(messages)
     } catch (error) {
       console.error('Error fetching messages:', error)
@@ -54,7 +69,9 @@ export const useMessages = () => {
         conversationId, 
         assistantResponse.message.content
       )
-      setMessages([...updatedMessages, assistantMessage])
+      
+      const finalMessages = [...updatedMessages, assistantMessage]
+      setMessages(finalMessages)
 
       // Update conversation timestamp
     } catch (error) {

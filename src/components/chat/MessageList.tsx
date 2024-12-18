@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useEffect } from 'react'
 import { Message } from '@/types/chat'
 import { ScrollArea } from '../ui/scroll-area'
 import { EmptyState } from './EmptyState'
@@ -7,22 +7,18 @@ import { Download } from 'lucide-react'
 import { useToast } from '../ui/use-toast'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { TypewriterMarkdown } from './TypewriterMarkdown'
+import { LoadingMessage } from './LoadingMessage'
 
 interface MessageListProps {
   messages: Message[]
+  isLoading: boolean
   messagesEndRef: React.RefObject<HTMLDivElement>
 }
 
-export function MessageList({ messages, messagesEndRef }: MessageListProps) {
+export function MessageList({ messages, isLoading, messagesEndRef }: MessageListProps) {
   const { toast } = useToast()
   const isMobile = useIsMobile()
-  const [lastMessageId, setLastMessageId] = useState<string | null>(null)
-
-  useEffect(() => {
-    if (messages.length > 0) {
-      setLastMessageId(messages[messages.length - 1].id)
-    }
-  }, [messages])
+  const lastMessageId = messages.length > 0 ? messages[messages.length - 1].id : null
 
   useEffect(() => {
     console.log('Scrolling to latest message')
@@ -51,35 +47,35 @@ export function MessageList({ messages, messagesEndRef }: MessageListProps) {
   return (
     <div className="relative h-[calc(100dvh-8rem)] bg-[#343541]">
       <div className="absolute inset-0 flex flex-col">
-        <ScrollArea className="flex-1">
+        <ScrollArea className="flex-1 [&>div>div]:!block">
           <div className="min-h-full pb-32">
             {messages.length === 0 ? (
               <EmptyState />
             ) : (
-              <div className="pt-4">
+              <div className="pt-2">
                 {messages.map((message) => (
                   <div
-                    key={message.id}
-                    className={`px-4 py-6 ${
-                      message.role === 'assistant'
-                        ? 'bg-[#444654]'
-                        : ''
+                    key={`${message.id}-${message.created_at}`}
+                    className={`px-4 py-3 ${
+                      message.role === 'assistant' 
+                        ? 'bg-[hsla(var(--assistant-message-bg))]'
+                        : 'bg-[hsla(var(--user-message-bg))]'
                     }`}
                   >
-                    <div className={`w-full px-2 sm:px-0 max-w-3xl mx-auto flex gap-3 sm:gap-4`}>
+                    <div className={`w-full px-2 sm:px-0 max-w-3xl mx-auto flex gap-2 sm:gap-3`}>
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
                         message.role === 'assistant'
-                          ? 'bg-[#9b87f5]'
-                          : 'bg-[#5C5C7B]'
+                          ? 'bg-gradient-to-br from-[hsl(var(--chat-gradient-start))] to-[hsl(var(--chat-gradient-end))] shadow-lg'
+                          : 'bg-gradient-to-br from-[hsl(var(--accent-purple))] to-[hsl(var(--accent-blue))] shadow-lg'
                       }`}>
                         {message.role === 'assistant' ? 'AI' : 'U'}
                       </div>
                       <div className="flex-1">
-                        <div className="flex justify-between items-start gap-2 sm:gap-4">
+                        <div className="flex justify-between items-start gap-2">
                           <div className={`text-[#ECECF1] leading-relaxed whitespace-pre-wrap ${
                             isMobile ? 'text-sm' : 'text-base'
                           }`}>
-                            {message.role === 'assistant' && message.id === lastMessageId ? (
+                            {message.role === 'assistant' && message.id === lastMessageId && !message.metadata?.instant ? (
                               <TypewriterMarkdown 
                                 content={message.content} 
                                 speed={20} 
@@ -95,11 +91,11 @@ export function MessageList({ messages, messagesEndRef }: MessageListProps) {
                           {message.role === 'assistant' && (
                             <Button
                               variant="ghost"
-                              size="icon"
+                              className="flex items-center gap-2 text-gray-400 hover:text-white"
                               onClick={() => handleDownload(message.content)}
-                              className="text-gray-400 hover:text-white shrink-0 hidden sm:flex"
                             >
-                              <Download className={`${isMobile ? 'h-4 w-4' : 'h-5 w-5'}`} />
+                              <Download className="h-4 w-4" />
+                              <span className="hidden sm:inline">Save offline</span>
                             </Button>
                           )}
                         </div>
@@ -108,6 +104,7 @@ export function MessageList({ messages, messagesEndRef }: MessageListProps) {
                   </div>
                 ))}
                 <div ref={messagesEndRef} />
+                {isLoading && <LoadingMessage />}
               </div>
             )}
           </div>

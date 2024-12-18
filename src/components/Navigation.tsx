@@ -1,9 +1,30 @@
 import { NavigationMenu, NavigationMenuItem, NavigationMenuList } from "@/components/ui/navigation-menu";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { testLogin } from "@/lib/api/auth";
+import { useToast } from "@/hooks/use-toast";
 
 export const Navigation = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
+  
+  const handleTestLogin = async () => {
+    try {
+      await testLogin();
+      toast({
+        title: "Test Mode Activated",
+        description: "You can now use the app without authentication",
+      });
+      navigate("/chat");
+    } catch (error) {
+      console.error("Test login failed:", error);
+      toast({
+        title: "Test Login Failed",
+        description: "Could not activate test mode. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
 
   return (
     <header className="border-b bg-white">
@@ -19,13 +40,31 @@ export const Navigation = () => {
           </div>
           <NavigationMenu>
             <NavigationMenuList>
+              {process.env.NODE_ENV === 'development' && (
+                <NavigationMenuItem>
+                  <Button 
+                    variant="outline" 
+                    onClick={handleTestLogin}
+                    className="bg-yellow-100 hover:bg-yellow-200 border-yellow-400"
+                  >
+                    Test Mode
+                  </Button>
+                </NavigationMenuItem>
+              )}
               <NavigationMenuItem>
-                <Button variant="ghost" onClick={() => navigate("/login")}>
+                <Button 
+                  variant="outline"
+                  onClick={() => navigate("/login")}
+                  className="bg-[#1B365D] text-white hover:bg-[#1B365D]/90"
+                >
                   Login
                 </Button>
               </NavigationMenuItem>
               <NavigationMenuItem>
-                <Button onClick={() => navigate("/signup")}>
+                <Button 
+                  onClick={() => navigate("/signup")}
+                  className="bg-green-500 text-white hover:bg-green-600"
+                >
                   Sign Up
                 </Button>
               </NavigationMenuItem>

@@ -1,20 +1,24 @@
-import React, { useRef, useState, useEffect } from 'react'
+import * as React from 'react'
+const { useRef, useState, useEffect } = React
 import { ChatLayout } from './chat/ChatLayout'
 import { useConversations } from '@/hooks/useConversations'
 import { useMessages } from '@/hooks/useMessages'
+import { createMockMessage } from '@/lib/mock-data'
 import { supabase } from '@/integrations/supabase/client'
 
 export default function ChatInterface() {
   const [input, setInput] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
   const [isNewMessage, setIsNewMessage] = useState(false)
+  const [pendingMessage, setPendingMessage] = useState<Message | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   
   const { 
     conversations, 
     currentConversation, 
     setCurrentConversation, 
-    createNewChat 
+    createNewChat,
+    handleDeleteConversation
   } = useConversations()
 
   const { 
@@ -47,10 +51,15 @@ export default function ChatInterface() {
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault()
     if (currentConversation) {
+      // Create and display pending user message immediately
+      const userMessage = createMockMessage(input, 'user', currentConversation)
+      setPendingMessage(userMessage)
+      
       console.log('Sending message in conversation:', currentConversation)
       setIsNewMessage(true)
       await sendMessage(input, currentConversation)
       setInput('')
+      setPendingMessage(null)
     }
   }
 
@@ -74,7 +83,7 @@ export default function ChatInterface() {
     <ChatLayout
       conversations={conversations}
       currentConversation={currentConversation}
-      messages={messages}
+      messages={pendingMessage ? [...messages, pendingMessage] : messages}
       searchTerm={searchTerm}
       input={input}
       isLoading={isLoading}
@@ -85,6 +94,7 @@ export default function ChatInterface() {
       onNewChat={handleNewChat}
       onInputChange={setInput}
       onSend={handleSend}
+      onDeleteConversation={handleDeleteConversation}
     />
   )
 }

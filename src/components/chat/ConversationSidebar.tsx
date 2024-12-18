@@ -9,7 +9,8 @@ interface ConversationSidebarProps {
   searchTerm: string
   onSearchChange: (value: string) => void
   onConversationSelect: (id: string) => void
-  onNewChat: () => void
+  onNewChat: () => void,
+  onDeleteConversation: (id: string) => void
 }
 
 export function ConversationSidebar({
@@ -19,6 +20,7 @@ export function ConversationSidebar({
   onSearchChange,
   onConversationSelect,
   onNewChat,
+  onDeleteConversation,
 }: ConversationSidebarProps) {
   const isMobile = useIsMobile()
   
@@ -42,6 +44,7 @@ export function ConversationSidebar({
           onSearchChange={onSearchChange}
           onConversationSelect={onConversationSelect}
           onNewChat={onNewChat}
+          onDeleteConversation={onDeleteConversation}
         />
       </div>
     </div>

@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react'
+import * as React from 'react'
+const { useState, useEffect } = React
 import { Button } from '../ui/button'
 import { Textarea } from '../ui/textarea'
 import { Send, Mic, MicOff } from 'lucide-react'
@@ -134,15 +135,17 @@ export function MessageInput({ input, isLoading, onInputChange, onSend }: Messag
           onKeyDown={handleKeyDown}
           placeholder="Message SkyGuide..."
           disabled={isLoading}
-          className="min-h-[48px] sm:min-h-[60px] w-full pr-20 sm:pr-24 resize-none bg-[#40414F] border-0 focus-visible:ring-0 text-white placeholder:text-[#8E8EA0] rounded-lg text-sm md:text-base"
+          className="min-h-[48px] sm:min-h-[60px] w-full pr-20 sm:pr-24 resize-none bg-[hsla(var(--input-bg))] border border-white/10 focus-visible:ring-2 focus-visible:ring-[hsl(var(--chat-gradient-start))] text-white placeholder:text-white/50 rounded-lg text-sm md:text-base shadow-lg transition-all duration-200"
           rows={1}
         />
         <div className="absolute right-2 top-1.5 sm:top-2 flex gap-2">
           <Button
             type="button"
             onClick={toggleDictation}
-            className={`h-8 w-8 p-0 ${
-              isListening ? 'bg-red-500 hover:bg-red-600' : 'bg-[#9b87f5] hover:bg-[#7E69AB]'
+            className={`h-8 w-8 p-0 shadow-lg transition-all duration-200 ${
+              isListening 
+                ? 'bg-red-500 hover:bg-red-600' 
+                : 'bg-gradient-to-br from-[hsl(var(--chat-gradient-start))] to-[hsl(var(--chat-gradient-end))] hover:opacity-90'
             }`}
             size="icon"
           >
@@ -155,7 +158,7 @@ export function MessageInput({ input, isLoading, onInputChange, onSend }: Messag
           <Button 
             type="submit" 
             disabled={isLoading || !input.trim()}
-            className="bg-[#9b87f5] hover:bg-[#7E69AB] h-8 w-8 p-0"
+            className="bg-gradient-to-br from-[hsl(var(--chat-gradient-start))] to-[hsl(var(--chat-gradient-end))] hover:opacity-90 h-8 w-8 p-0 shadow-lg transition-all duration-200"
             size="icon"
           >
             <Send className="h-4 w-4" />

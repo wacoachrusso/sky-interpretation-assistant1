@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import * as React from 'react';
+const { useState, useEffect } = React;
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
@@ -12,6 +13,7 @@ interface TypewriterMarkdownProps {
 export function TypewriterMarkdown({ content, speed = 20, instant = false, onComplete }: TypewriterMarkdownProps) {
   const [displayedText, setDisplayedText] = useState('');
   const [currentIndex, setCurrentIndex] = useState(0);
+  const effectiveSpeed = speed / 12; // Make typewriter effect even faster
 
   useEffect(() => {
     if (instant) {
@@ -27,7 +29,7 @@ export function TypewriterMarkdown({ content, speed = 20, instant = false, onCom
       const timer = setTimeout(() => {
         setDisplayedText(prev => prev + content[currentIndex]);
         setCurrentIndex(prev => prev + 1);
-      }, speed);
+      }, effectiveSpeed);
 
       return () => clearTimeout(timer);
     } else if (onComplete) {
@@ -45,12 +47,20 @@ export function TypewriterMarkdown({ content, speed = 20, instant = false, onCom
       remarkPlugins={[remarkGfm]}
       components={{
         table: props => (
-          <div className="overflow-x-auto">
-            <table className="border-collapse border border-gray-600" {...props} />
+          <div className="overflow-x-auto my-1">
+            <table className="border-collapse border border-gray-600 w-full text-left mb-1" {...props} />
           </div>
         ),
-        th: props => <th className="border border-gray-600 px-4 py-2 bg-gray-800" {...props} />,
-        td: props => <td className="border border-gray-600 px-4 py-2" {...props} />
+        th: props => <th className="border border-gray-600 px-3 py-1.5 bg-gray-800 text-sm font-semibold" {...props} />,
+        td: props => <td className="border border-gray-600 px-3 py-1.5 text-sm whitespace-normal" {...props} />,
+        p: props => <p className="mb-0.5 last:mb-0 leading-relaxed" {...props} />,
+        ul: props => <ul className="mb-1 last:mb-0 list-disc pl-4" {...props} />,
+        ol: props => <ol className="mb-1 last:mb-0 list-decimal pl-4" {...props} />,
+        li: props => <li className="mb-1 last:mb-0" {...props} />,
+        h2: props => <h2 className="text-lg font-semibold mb-0.5 mt-1" {...props} />,
+        h3: props => <h3 className="text-base font-semibold mb-0.5 mt-1" {...props} />,
+        code: props => <code className="bg-gray-800 px-1 py-0.5 rounded text-sm" {...props} />,
+        pre: props => <pre className="bg-gray-800 p-2 rounded-lg my-1 overflow-x-auto" {...props} />
       }}
     >
       {displayedText}

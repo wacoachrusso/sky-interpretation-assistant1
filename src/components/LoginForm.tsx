@@ -15,62 +15,29 @@ const LoginForm = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  const validateForm = () => {
-    if (!formData.email || !formData.password) {
-      toast({
-        title: "Missing Fields",
-        description: "Please fill in all fields",
-        variant: "destructive",
-      });
-      return false;
-    }
-    return true;
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!validateForm()) return;
-    
     setIsLoading(true);
-    const email = formData.email.trim().toLowerCase();
-    console.log("Attempting login with email:", email);
     
     try {
       const { error } = await supabase.auth.signInWithPassword({
-        email,
+        email: formData.email.trim().toLowerCase(),
         password: formData.password,
       });
 
-      if (error) {
-        console.error('Login error:', error.message);
-        let errorMessage = "Invalid email or password";
-        
-        if (error.message.includes("invalid_credentials")) {
-          errorMessage = "Invalid email or password. Please try again.";
-        }
-        
-        toast({
-          title: "Login Failed",
-          description: errorMessage,
-          variant: "destructive",
-        });
-        return;
-      }
+      if (error) throw error;
 
       toast({
         title: "Login Successful",
         description: "Welcome back!",
       });
 
-      // Redirect to chat interface after successful login
       navigate("/chat");
     } catch (error: any) {
-      console.error('Unexpected error during login:', error);
-      
+      console.error('Login error:', error);
       toast({
         title: "Login Failed",
-        description: "An unexpected error occurred. Please try again.",
+        description: error.message,
         variant: "destructive",
       });
     } finally {

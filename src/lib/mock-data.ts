@@ -7,7 +7,7 @@ export const createMockMessage = (
   conversationId: string,
   userId: string = TEST_USER_ID
 ): Message => ({
-  id: `msg-${Date.now()}${role === 'assistant' ? '-assistant' : ''}`,
+  id: `msg-${Date.now()}-${Math.random().toString(36).substring(2)}`,
   conversation_id: conversationId,
   content,
   role,

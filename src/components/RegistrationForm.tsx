@@ -1,37 +1,40 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate, useSearchParams, Link } from "react-router-dom";
-import PricingSection from "./pricing/PricingSection";
-import RegistrationFormFields from "./registration/RegistrationFormFields";
+import { useNavigate } from "react-router-dom";
+
+const JOB_TITLES = ["Pilot", "Flight Attendant"];
+
+const AIRLINES = [
+  "United Airlines",
+  "American Airlines",
+  "Delta Air Lines",
+  "Southwest Airlines",
+  "Alaska Airlines",
+  "Spirit Airlines",
+  "JetBlue Airways",
+  "Frontier Airlines",
+  "Other"
+];
 
 const RegistrationForm = () => {
-  const [searchParams] = useSearchParams();
   const [formData, setFormData] = useState({
-    fullName: "",
     email: "",
     password: "",
-    userType: "",
+    fullName: "",
+    jobTitle: "",
     airline: "",
-    plan: ""
   });
-  
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
   const validateForm = () => {
-    if (!formData.plan) {
-      toast({
-        title: "Plan Selection Required",
-        description: "Please select a subscription plan to continue.",
-        variant: "destructive",
-      });
-      return false;
-    }
-
-    if (!formData.userType || !formData.airline) {
+    if (!formData.jobTitle || !formData.airline) {
       toast({
         title: "Missing Information",
         description: "Please select both your job title and airline.",
@@ -39,68 +42,41 @@ const RegistrationForm = () => {
       });
       return false;
     }
-
-    if (formData.password.length < 6) {
-      toast({
-        title: "Invalid Password",
-        description: "Password must be at least 6 characters long.",
-        variant: "destructive",
-      });
-      return false;
-    }
-
     return true;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (!validateForm()) return;
-
     setIsLoading(true);
     
     try {
-      console.log("Submitting registration form with data:", formData);
-      
-      const { data: authData, error: authError } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email: formData.email.trim().toLowerCase(),
         password: formData.password,
+        options: {
+          data: {
+            full_name: formData.fullName,
+            job_title: formData.jobTitle,
+            airline: formData.airline,
+          },
+        },
       });
 
-      if (authError) throw authError;
+      if (error) throw error;
 
-      if (authData.user) {
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .update({
-            full_name: formData.fullName,
-            subscription_plan: formData.plan,
-            user_type: formData.userType,
-            airline: formData.airline,
-            query_count: 0
-          })
-          .eq('id', authData.user.id);
-
-        if (profileError) throw profileError;
-
+      if (data?.user) {
         toast({
           title: "Registration Successful",
-          description: "Welcome to SkyGuide! Redirecting you to the chat interface...",
+          description: "Welcome to SkyGuide!",
         });
-
         navigate("/chat");
       }
     } catch (error: any) {
       console.error('Registration error:', error);
-      
-      let errorMessage = error.message;
-      if (error.message.includes("weak_password")) {
-        errorMessage = "Password must be at least 6 characters long.";
-      }
-      
       toast({
         title: "Registration Failed",
-        description: errorMessage,
+        description: error.message,
         variant: "destructive",
       });
     } finally {
@@ -108,13 +84,9 @@ const RegistrationForm = () => {
     }
   };
 
-  const handleFieldChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
   return (
-    <div className="w-full max-w-4xl mx-auto p-6">
-      <div className="flex items-center justify-between mb-8">
+    <div className="w-full max-w-md mx-auto p-6">
+      <div className="mb-8">
         <Button 
           variant="ghost" 
           onClick={() => navigate("/")}
@@ -122,34 +94,81 @@ const RegistrationForm = () => {
         >
           ← Back to Home
         </Button>
-        <h1 className="text-3xl font-bold text-center">Join SkyGuide Today</h1>
       </div>
-
-      <p className="text-center text-muted-foreground mb-8">Choose your plan and start exploring your contract details</p>
-
-      <PricingSection 
-        selectedPlan={formData.plan}
-        onPlanChange={(value) => handleFieldChange('plan', value)}
-      />
-
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <RegistrationFormFields 
-          formData={formData}
-          onChange={handleFieldChange}
-        />
-        
-        <Button 
-          type="submit" 
-          className="w-full bg-primary hover:bg-primary/90 text-lg py-6"
-          disabled={isLoading}
-        >
-          {isLoading ? "Creating Account..." : "Create Account"}
-        </Button>
-        
-        <p className="text-center text-sm text-muted-foreground">
-          Already have an account? <Link to="/login" className="text-primary hover:underline">Sign in</Link>
-        </p>
-      </form>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-2xl text-center">Create Account</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <Input
+              placeholder="Full Name"
+              value={formData.fullName}
+              onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+              required
+            />
+            <Input
+              type="email"
+              placeholder="Email"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              required
+              className="lowercase"
+            />
+            <Input
+              type="password"
+              placeholder="Password"
+              value={formData.password}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              required
+            />
+            <div className="space-y-2">
+              <Select
+                value={formData.jobTitle}
+                onValueChange={(value) => setFormData({ ...formData, jobTitle: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select Job Title" />
+                </SelectTrigger>
+                <SelectContent>
+                  {JOB_TITLES.map((title) => (
+                    <SelectItem key={title} value={title.toLowerCase()}>
+                      {title}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Select
+                value={formData.airline}
+                onValueChange={(value) => setFormData({ ...formData, airline: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select Airline" />
+                </SelectTrigger>
+                <SelectContent>
+                  {AIRLINES.map((airline) => (
+                    <SelectItem key={airline} value={airline.toLowerCase()}>
+                      {airline}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <Button 
+              type="submit" 
+              className="w-full"
+              disabled={isLoading}
+            >
+              {isLoading ? "Creating Account..." : "Sign Up"}
+            </Button>
+          </form>
+          <p className="text-center mt-4 text-sm text-muted-foreground">
+            Already have an account? <a href="/login" className="text-primary hover:underline">Login</a>
+          </p>
+        </CardContent>
+      </Card>
     </div>
   );
 };
