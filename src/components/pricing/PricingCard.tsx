@@ -38,7 +38,7 @@ const PricingCard = ({
         <div className="text-3xl font-bold mb-4">
           {price}<span className="text-lg font-normal">/{interval}</span>
         </div>
-        <RadioGroup value={value} onValueChange={onValueChange}>
+        <RadioGroup onValueChange={onValueChange}>
           <div className="flex items-center space-x-2">
             <RadioGroupItem value={value} id={value} />
             <Label htmlFor={value}>Select {title}</Label>
