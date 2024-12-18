@@ -39,7 +39,7 @@ export const useMessages = () => {
   }
 
   const sendMessage = async (input: string, conversationId: string) => {
-    console.log('Sending message:', input)
+    console.log('Starting to send message:', input)
     
     if (!input.trim() || !conversationId || isLoading) {
       console.log('Message not sent. Conditions:', {
@@ -83,33 +83,27 @@ export const useMessages = () => {
       const updatedMessages = [...messages, typedMessageData]
       setMessages(updatedMessages)
 
-      console.log('Calling OpenAI assistant...')
-      const response = await fetch('/functions/v1/chat-assistant', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
-        },
-        body: JSON.stringify({
+      console.log('Calling chat-assistant function...')
+      const { data: functionData, error: functionError } = await supabase.functions.invoke('chat-assistant', {
+        body: {
           messages: updatedMessages,
           threadId: conversationId
-        })
+        }
       })
 
-      if (!response.ok) {
-        console.error('Assistant response not ok:', response.status)
+      if (functionError) {
+        console.error('Function error:', functionError)
         throw new Error('Failed to get assistant response')
       }
 
-      const { message: assistantMessage } = await response.json()
-      console.log('Received assistant response:', assistantMessage)
+      console.log('Received assistant response:', functionData)
 
       console.log('Saving assistant message...')
       const { data: assistantData, error: assistantError } = await supabase
         .from('messages')
         .insert([{
           conversation_id: conversationId,
-          content: assistantMessage.content,
+          content: functionData.message.content,
           role: 'assistant' as const,
           user_id: user.id
         }])
