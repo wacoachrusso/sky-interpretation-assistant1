@@ -39,35 +39,34 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-20">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">Why Choose SkyGuide?</h2>
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="p-6 rounded-lg border">
-              <h3 className="text-xl font-semibold mb-4">Instant Answers</h3>
-              <p>Get immediate, accurate interpretations of your contract clauses.</p>
-            </div>
-            <div className="p-6 rounded-lg border">
-              <h3 className="text-xl font-semibold mb-4">Expert Precision</h3>
-              <p>AI-powered assistance with exact citations and references.</p>
-            </div>
-            <div className="p-6 rounded-lg border">
-              <h3 className="text-xl font-semibold mb-4">24/7 Availability</h3>
-              <p>Access your contract guide anytime, anywhere.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Pricing Section */}
       <section className="py-20 bg-gray-50">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12">Simple, Transparent Pricing</h2>
-          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            <div className="p-8 rounded-lg border bg-white">
+              <h3 className="text-xl font-semibold mb-4">Free Trial</h3>
+              <p className="text-4xl font-bold mb-4">Free</p>
+              <ul className="mb-8 space-y-2">
+                <li>✓ 2 Contract Queries</li>
+                <li>✓ Basic Features</li>
+                <li>✓ No Credit Card Required</li>
+              </ul>
+              <Button 
+                onClick={() => navigate("/signup?plan=trial")}
+                className="w-full"
+              >
+                Start Free Trial
+              </Button>
+            </div>
             <div className="p-8 rounded-lg border bg-white">
               <h3 className="text-xl font-semibold mb-4">Monthly Plan</h3>
               <p className="text-4xl font-bold mb-4">$4.99<span className="text-lg font-normal">/month</span></p>
+              <ul className="mb-8 space-y-2">
+                <li>✓ Unlimited Queries</li>
+                <li>✓ All Features</li>
+                <li>✓ Priority Support</li>
+              </ul>
               <Button 
                 onClick={() => navigate("/signup?plan=monthly")}
                 className="w-full"
@@ -77,10 +76,16 @@ const Index = () => {
             </div>
             <div className="p-8 rounded-lg border bg-white relative overflow-hidden">
               <div className="absolute top-4 right-4 bg-secondary text-white px-3 py-1 rounded-full text-sm">
-                Save $10
+                Best Value
               </div>
               <h3 className="text-xl font-semibold mb-4">Annual Plan</h3>
               <p className="text-4xl font-bold mb-4">$49.99<span className="text-lg font-normal">/year</span></p>
+              <ul className="mb-8 space-y-2">
+                <li>✓ Unlimited Queries</li>
+                <li>✓ All Features</li>
+                <li>✓ Priority Support</li>
+                <li>✓ Save $10</li>
+              </ul>
               <Button 
                 onClick={() => navigate("/signup?plan=annual")}
                 className="w-full bg-secondary hover:bg-secondary/90"

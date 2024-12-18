@@ -9,7 +9,7 @@ export const Navigation = () => {
     <header className="border-b bg-white">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate("/")}>
             <img
               src="/lovable-uploads/4d0b5f1f-ee3c-422d-81df-9db600490aec.png"
               alt="SkyGuide Logo"
