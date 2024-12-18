@@ -16,7 +16,7 @@ const RegistrationForm = () => {
     password: "",
     userType: "",
     airline: "",
-    plan: "monthly" // Default to monthly plan
+    plan: "trial" // Changed default to trial
   });
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
@@ -43,7 +43,8 @@ const RegistrationForm = () => {
             full_name: formData.fullName,
             user_type: formData.userType,
             airline: formData.airline,
-            subscription_plan: formData.plan
+            subscription_plan: formData.plan,
+            query_count: 0 // Initialize query count
           })
           .eq('id', authData.user.id);
 
@@ -54,8 +55,10 @@ const RegistrationForm = () => {
           description: "Please check your email for verification.",
         });
 
-        // Redirect to the main app
-        navigate("/");
+        // Redirect to the main app after a short delay
+        setTimeout(() => {
+          navigate("/");
+        }, 1500);
       }
     } catch (error) {
       console.error('Registration error:', error);
