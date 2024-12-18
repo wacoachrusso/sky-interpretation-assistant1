@@ -10,14 +10,16 @@ export default defineConfig(({mode}) => ({
     hmr: true
   },
   build: {
-    assetsInclude: ['**/*.png'], // Ensure PNG files are included in the build
+    assetsInclude: ['**/*.png', '**/*.ico'],
     rollupOptions: {
       output: {
         assetFileNames: (assetInfo) => {
-          if (assetInfo.name === 'favicon.png') {
-            return 'favicon.png';
+          const info = assetInfo.name.split('.');
+          const ext = info[info.length - 1];
+          if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(ext)) {
+            return `assets/images/[name]-[hash][extname]`;
           }
-          return 'assets/[name]-[hash][extname]';
+          return `assets/[name]-[hash][extname]`;
         }
       }
     }

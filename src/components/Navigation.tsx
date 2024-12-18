@@ -33,8 +33,9 @@ export const Navigation = () => {
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate("/")}>
             <img
               src="/lovable-uploads/4d0b5f1f-ee3c-422d-81df-9db600490aec.png"
-              alt="SkyGuide Logo"
+              alt="SkyGuide"
               className="h-8"
+              loading="eager"
             />
             <span className="text-xl font-bold text-primary">SkyGuide</span>
           </div>

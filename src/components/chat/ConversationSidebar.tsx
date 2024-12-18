@@ -30,8 +30,9 @@ export function ConversationSidebar({
         <div className="flex items-center gap-2 px-2 py-1">
           <img
             src="/lovable-uploads/4d0b5f1f-ee3c-422d-81df-9db600490aec.png"
-            alt="SkyGuide Logo"
+            alt="SkyGuide"
             className="h-6"
+            loading="eager"
           />
           <span className="text-lg font-semibold text-white">SkyGuide</span>
         </div>
