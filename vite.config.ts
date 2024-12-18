@@ -25,10 +25,10 @@ export default defineConfig({
   plugins: [
     react(),
     componentTagger(),
-  ].filter(Boolean),
+  ],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
   }
-}));
+});
