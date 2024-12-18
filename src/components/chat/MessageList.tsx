@@ -40,59 +40,62 @@ export function MessageList({ messages, messagesEndRef }: MessageListProps) {
   }
 
   return (
-    <ScrollArea className="h-[calc(100vh-8rem)] pb-32">
-      <div className="min-h-full">
-        {messages.length === 0 ? (
-          <EmptyState />
-        ) : (
-          <div className="pb-32 pt-4">
-            {messages.map((message) => (
-              <div
-                key={message.id}
-                className={`px-4 py-6 ${
-                  message.role === 'assistant'
-                    ? 'bg-[#444654]'
-                    : ''
-                }`}
-              >
-                <div className={`${isMobile ? 'w-full px-2' : 'max-w-3xl mx-auto'} flex gap-4`}>
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
+    <div className="relative flex-1 h-[calc(100vh-8rem)]">
+      <ScrollArea className="h-full pb-32 bg-[#343541]">
+        <div className="min-h-full">
+          {messages.length === 0 ? (
+            <EmptyState />
+          ) : (
+            <div className="pb-32 pt-4">
+              {messages.map((message) => (
+                <div
+                  key={message.id}
+                  className={`px-4 py-6 ${
                     message.role === 'assistant'
-                      ? 'bg-[#9b87f5]'
-                      : 'bg-[#5C5C7B]'
-                  }`}>
-                    {message.role === 'assistant' ? 'AI' : 'U'}
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex justify-between items-start gap-4">
-                      <div className={`text-[#ECECF1] leading-relaxed whitespace-pre-wrap ${
-                        isMobile ? 'text-sm' : 'text-base'
-                      }`}>
-                        {message.role === 'assistant' ? (
-                          <TypewriterText text={message.content} speed={20} />
-                        ) : (
-                          message.content
+                      ? 'bg-[#444654]'
+                      : ''
+                  }`}
+                >
+                  <div className={`${isMobile ? 'w-full px-2' : 'max-w-3xl mx-auto'} flex gap-4`}>
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
+                      message.role === 'assistant'
+                        ? 'bg-[#9b87f5]'
+                        : 'bg-[#5C5C7B]'
+                    }`}>
+                      {message.role === 'assistant' ? 'AI' : 'U'}
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex justify-between items-start gap-4">
+                        <div className={`text-[#ECECF1] leading-relaxed whitespace-pre-wrap ${
+                          isMobile ? 'text-sm' : 'text-base'
+                        }`}>
+                          {message.role === 'assistant' ? (
+                            <TypewriterText text={message.content} speed={20} />
+                          ) : (
+                            message.content
+                          )}
+                        </div>
+                        {message.role === 'assistant' && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDownload(message.content)}
+                            className="text-gray-400 hover:text-white shrink-0"
+                          >
+                            <Download className={`${isMobile ? 'h-4 w-4' : 'h-5 w-5'}`} />
+                          </Button>
                         )}
                       </div>
-                      {message.role === 'assistant' && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDownload(message.content)}
-                          className="text-gray-400 hover:text-white shrink-0"
-                        >
-                          <Download className={`${isMobile ? 'h-4 w-4' : 'h-5 w-5'}`} />
-                        </Button>
-                      )}
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
-            <div ref={messagesEndRef} />
-          </div>
-        )}
-      </div>
-    </ScrollArea>
+              ))}
+              <div ref={messagesEndRef} />
+            </div>
+          )}
+        </div>
+      </ScrollArea>
+      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-[#343541] to-transparent h-32 pointer-events-none" />
+    </div>
   )
 }
