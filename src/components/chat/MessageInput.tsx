@@ -15,7 +15,6 @@ export function MessageInput({ input, isLoading, onInputChange, onSend }: Messag
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
       if (input.trim()) {
-        console.log('Sending message via Enter key:', input)
         onSend(e)
       }
     }
@@ -24,7 +23,6 @@ export function MessageInput({ input, isLoading, onInputChange, onSend }: Messag
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (input.trim()) {
-      console.log('Sending message via form submit:', input)
       onSend(e)
     }
   }

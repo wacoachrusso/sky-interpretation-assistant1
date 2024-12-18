@@ -16,34 +16,37 @@ serve(async (req) => {
   }
 
   try {
-    console.log('Received request to chat-assistant function');
+    console.log('Starting chat-assistant function');
     const { messages, threadId } = await req.json();
-    console.log('Request payload:', { threadId, messageCount: messages.length });
+    console.log('Request payload:', { threadId, messageCount: messages?.length });
+
+    if (!openAIApiKey) {
+      throw new Error('OpenAI API key is not configured');
+    }
 
     const openai = new OpenAI({
       apiKey: openAIApiKey,
     });
 
-    let thread;
-    if (!threadId) {
-      console.log('Creating new thread');
-      thread = await openai.beta.threads.create();
-      console.log('Created new thread:', thread.id);
-    } else {
-      thread = { id: threadId };
-      console.log('Using existing thread:', thread.id);
-    }
-
-    // Add the user's message to the thread
-    const lastMessage = messages[messages.length - 1];
-    console.log('Adding user message to thread:', lastMessage.content);
+    console.log('Creating or retrieving thread');
+    const thread = threadId 
+      ? { id: threadId }
+      : await openai.beta.threads.create();
     
+    console.log('Thread ID:', thread.id);
+
+    // Get the last message from the messages array
+    const lastMessage = messages[messages.length - 1];
+    console.log('Processing message:', lastMessage.content);
+
+    // Add the message to the thread
+    console.log('Adding message to thread');
     await openai.beta.threads.messages.create(thread.id, {
       role: 'user',
       content: lastMessage.content,
     });
 
-    // Run the assistant with the specific Assistant ID
+    // Run the assistant
     console.log('Starting assistant run');
     const run = await openai.beta.threads.runs.create(thread.id, {
       assistant_id: "asst_YdZtVHPSq6TIYKRkKcOqtwzn",
@@ -64,24 +67,24 @@ serve(async (req) => {
         throw new Error('Assistant run requires action');
       }
       
-      console.log('Run status:', runStatus.status);
+      console.log('Current run status:', runStatus.status);
       await new Promise(resolve => setTimeout(resolve, 1000));
       runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id);
     }
 
     // Get the assistant's response
     console.log('Retrieving assistant response');
-    const messages_response = await openai.beta.threads.messages.list(thread.id);
-    const assistant_message = messages_response.data[0];
+    const messagesResponse = await openai.beta.threads.messages.list(thread.id);
+    const assistantMessage = messagesResponse.data[0];
     
-    console.log('Assistant response:', assistant_message);
+    console.log('Assistant response:', assistantMessage);
 
     return new Response(
       JSON.stringify({
         threadId: thread.id,
         message: {
           role: 'assistant',
-          content: assistant_message.content[0].text.value,
+          content: assistantMessage.content[0].text.value,
         },
       }),
       {

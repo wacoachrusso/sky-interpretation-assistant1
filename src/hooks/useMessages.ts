@@ -39,8 +39,6 @@ export const useMessages = () => {
   }
 
   const sendMessage = async (input: string, conversationId: string) => {
-    console.log('Starting to send message:', input)
-    
     if (!input.trim() || !conversationId || isLoading) {
       console.log('Message not sent. Conditions:', {
         inputEmpty: !input.trim(),
@@ -53,25 +51,16 @@ export const useMessages = () => {
     setIsLoading(true)
 
     try {
-      console.log('Getting user data...')
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) throw new Error('No user found')
 
-      console.log('Incrementing query count...')
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({ query_count: (await supabase.from('profiles').select('query_count').eq('id', user.id).single()).data!.query_count + 1 })
-        .eq('id', user.id)
-
-      if (updateError) throw updateError
-
-      console.log('Saving user message...')
+      // Save user message
       const { data: messageData, error: messageError } = await supabase
         .from('messages')
         .insert([{
           conversation_id: conversationId,
           content: input,
-          role: 'user' as const,
+          role: 'user',
           user_id: user.id
         }])
         .select()
@@ -83,7 +72,7 @@ export const useMessages = () => {
       const updatedMessages = [...messages, typedMessageData]
       setMessages(updatedMessages)
 
-      console.log('Calling chat-assistant function...')
+      // Call chat-assistant function
       const { data: functionData, error: functionError } = await supabase.functions.invoke('chat-assistant', {
         body: {
           messages: updatedMessages,
@@ -91,20 +80,15 @@ export const useMessages = () => {
         }
       })
 
-      if (functionError) {
-        console.error('Function error:', functionError)
-        throw new Error('Failed to get assistant response')
-      }
+      if (functionError) throw functionError
 
-      console.log('Received assistant response:', functionData)
-
-      console.log('Saving assistant message...')
+      // Save assistant message
       const { data: assistantData, error: assistantError } = await supabase
         .from('messages')
         .insert([{
           conversation_id: conversationId,
           content: functionData.message.content,
-          role: 'assistant' as const,
+          role: 'assistant',
           user_id: user.id
         }])
         .select()
@@ -115,7 +99,7 @@ export const useMessages = () => {
       const typedAssistantData = { ...assistantData, role: assistantData.role as "user" | "assistant" } as Message
       setMessages([...updatedMessages, typedAssistantData])
 
-      console.log('Updating conversation timestamp...')
+      // Update conversation timestamp
       await supabase
         .from('conversations')
         .update({ last_message_at: new Date().toISOString() })
