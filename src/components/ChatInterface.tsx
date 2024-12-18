@@ -1,12 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { Sidebar, SidebarProvider } from './ui/sidebar'
 import { useToast } from './ui/use-toast'
 import { supabase } from '@/integrations/supabase/client'
 import { Message, Conversation } from '@/types/chat'
-import { ConversationList } from './chat/ConversationList'
-import { MessageList } from './chat/MessageList'
-import { MessageInput } from './chat/MessageInput'
-import { QueryLimitChecker } from './chat/QueryLimitChecker'
+import { ChatLayout } from './chat/ChatLayout'
 
 export default function ChatInterface() {
   const [conversations, setConversations] = useState<Conversation[]>([])
@@ -17,20 +13,6 @@ export default function ChatInterface() {
   const [searchTerm, setSearchTerm] = useState('')
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const { toast } = useToast()
-
-  useEffect(() => {
-    fetchConversations()
-  }, [])
-
-  useEffect(() => {
-    if (currentConversation) {
-      fetchMessages(currentConversation)
-    }
-  }, [currentConversation])
-
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
 
   const fetchConversations = async () => {
     try {
@@ -138,7 +120,7 @@ export default function ChatInterface() {
 
       if (updateError) throw updateError;
 
-      // Save user message to database with explicit role type
+      // Save user message
       const { data: messageData, error: messageError } = await supabase
         .from('messages')
         .insert([{
@@ -152,7 +134,6 @@ export default function ChatInterface() {
 
       if (messageError) throw messageError
 
-      // Type assertion for the message data
       const typedMessageData = { ...messageData, role: messageData.role as "user" | "assistant" } as Message
       const updatedMessages = [...messages, typedMessageData]
       setMessages(updatedMessages)
@@ -174,7 +155,7 @@ export default function ChatInterface() {
 
       const { message: assistantMessage } = await response.json()
 
-      // Save assistant message to database with explicit role type
+      // Save assistant message
       const { data: assistantData, error: assistantError } = await supabase
         .from('messages')
         .insert([{
@@ -188,7 +169,6 @@ export default function ChatInterface() {
 
       if (assistantError) throw assistantError
 
-      // Type assertion for the assistant message
       const typedAssistantData = { ...assistantData, role: assistantData.role as "user" | "assistant" } as Message
       setMessages([...updatedMessages, typedAssistantData])
 
@@ -212,33 +192,19 @@ export default function ChatInterface() {
   };
 
   return (
-    <SidebarProvider>
-      <div className="flex h-screen bg-background">
-        <QueryLimitChecker />
-        <Sidebar className="w-64 p-4 border-r">
-          <ConversationList
-            conversations={conversations}
-            currentConversation={currentConversation}
-            searchTerm={searchTerm}
-            onSearchChange={setSearchTerm}
-            onConversationSelect={setCurrentConversation}
-            onNewChat={createNewChat}
-          />
-        </Sidebar>
-
-        <div className="flex-1 flex flex-col">
-          <MessageList
-            messages={messages}
-            messagesEndRef={messagesEndRef}
-          />
-          <MessageInput
-            input={input}
-            isLoading={isLoading}
-            onInputChange={setInput}
-            onSend={sendMessage}
-          />
-        </div>
-      </div>
-    </SidebarProvider>
-  );
+    <ChatLayout
+      conversations={conversations}
+      currentConversation={currentConversation}
+      messages={messages}
+      searchTerm={searchTerm}
+      input={input}
+      isLoading={isLoading}
+      messagesEndRef={messagesEndRef}
+      onSearchChange={setSearchTerm}
+      onConversationSelect={setCurrentConversation}
+      onNewChat={createNewChat}
+      onInputChange={setInput}
+      onSend={sendMessage}
+    />
+  )
 }

@@ -21,8 +21,8 @@ export function MessageList({ messages, messagesEndRef }: MessageListProps) {
             <div
               className={`max-w-[80%] rounded-lg p-4 ${
                 message.role === 'assistant'
-                  ? 'bg-secondary'
-                  : 'bg-primary text-primary-foreground'
+                  ? 'bg-white border border-gray-200'
+                  : 'bg-[#9b87f5] text-white'
               }`}
             >
               {message.content}
