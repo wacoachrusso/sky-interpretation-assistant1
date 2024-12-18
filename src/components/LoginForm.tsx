@@ -48,6 +48,15 @@ const LoginForm = () => {
 
   return (
     <div className="w-full max-w-md mx-auto p-6">
+      <div className="mb-8">
+        <Button 
+          variant="ghost" 
+          onClick={() => navigate("/")}
+          className="text-primary hover:text-primary/90"
+        >
+          ← Back to Home
+        </Button>
+      </div>
       <Card>
         <CardHeader>
           <CardTitle className="text-2xl text-center">Welcome Back</CardTitle>
