@@ -34,18 +34,6 @@
 
     --radius: 0.5rem;
 
-    --sidebar-background: 0 0% 98%;
-
-    --chat-gradient-start: 231, 48%, 48%;
-    --chat-gradient-end: 245, 58%, 51%;
-    --user-message-bg: 231, 48%, 48%, 0.1;
-    --assistant-message-bg: 245, 58%, 51%, 0.1;
-    --message-hover: 240, 50%, 50%, 0.05;
-    --input-bg: 240, 30%, 25%;
-    --sidebar-bg: 240, 25%, 15%;
-    --accent-purple: 250, 60%, 60%;
-    --accent-blue: 220, 70%, 60%;
-
     --sidebar-primary: 240 5.9% 10%;
 
     --sidebar-primary-foreground: 0 0% 98%;

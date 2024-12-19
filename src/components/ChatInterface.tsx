@@ -21,7 +21,9 @@ export default function ChatInterface() {
     currentConversation, 
     setCurrentConversation, 
     createNewChat,
-    handleDeleteConversation
+    clearAllChats,
+    handleDeleteConversation,
+    refreshConversations
   } = useConversations()
 
   const { 
@@ -39,6 +41,7 @@ export default function ChatInterface() {
       if (!title.trim()) return;
       
       await updateConversationTitle(id, title)
+      await refreshConversations()
     } catch (error) {
       console.error('Error updating conversation title:', error)
       // Only show toast for network errors
@@ -96,6 +99,12 @@ export default function ChatInterface() {
       setIsNewMessage(true)
       try {
         await sendMessage(trimmedInput, currentConversation)
+        // Update conversation's last_message_at
+        await supabase
+          .from('conversations')
+          .update({ last_message_at: new Date().toISOString() })
+          .eq('id', currentConversation)
+        await refreshConversations()
       } catch (error) {
         console.error('Error sending message:', error)
         toast({
@@ -135,6 +144,7 @@ export default function ChatInterface() {
       searchTerm={searchTerm}
       input={input}
       isLoading={isLoading}
+      onClearAllChats={clearAllChats}
       isNewMessage={isNewMessage}
       messagesEndRef={messagesEndRef}
       onSearchChange={setSearchTerm}

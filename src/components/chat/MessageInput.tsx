@@ -134,7 +134,7 @@ export function MessageInput({ input, isLoading, onInputChange, onSend }: Messag
           onKeyDown={handleKeyDown}
           placeholder="Message SkyGuide..."
           disabled={isLoading}
-          className="min-h-[48px] sm:min-h-[60px] w-full pr-20 sm:pr-24 resize-none bg-[hsla(var(--input-bg))] border border-white/10 focus-visible:ring-2 focus-visible:ring-[hsl(var(--chat-gradient-start))] text-white placeholder:text-white/50 rounded-lg text-sm md:text-base shadow-lg transition-all duration-200"
+          className="min-h-[48px] sm:min-h-[60px] w-full pr-20 sm:pr-24 resize-none bg-gray-800 border border-gray-700 focus-visible:ring-2 focus-visible:ring-blue-500 text-white placeholder:text-gray-400 rounded-lg text-sm md:text-base shadow-lg transition-all duration-200"
           rows={1}
         />
         <div className="absolute right-2 top-1.5 sm:top-2 flex gap-2">

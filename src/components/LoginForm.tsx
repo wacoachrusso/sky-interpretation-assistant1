@@ -46,19 +46,20 @@ const LoginForm = () => {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto p-6">
+    <div className="min-h-screen w-full bg-gradient-to-br from-slate-50 to-white p-6 flex flex-col items-center justify-center">
       <div className="mb-8">
         <Button 
           variant="ghost" 
           onClick={() => navigate("/")}
-          className="text-primary hover:text-primary/90"
+          className="text-primary hover:text-primary/90 bg-white/50 backdrop-blur-sm"
         >
           ← Back to Home
         </Button>
       </div>
-      <Card>
-        <CardHeader>
+      <Card className="w-full max-w-md bg-white/70 backdrop-blur-sm border-white/20 shadow-xl">
+        <CardHeader className="space-y-1">
           <CardTitle className="text-2xl text-center">Welcome Back</CardTitle>
+          <p className="text-center text-sm text-gray-600">Enter your credentials to continue</p>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -70,6 +71,7 @@ const LoginForm = () => {
               required
               className="lowercase"
               autoComplete="email"
+              autoFocus
             />
             <Input
               type="password"
@@ -81,7 +83,7 @@ const LoginForm = () => {
             />
             <Button 
               type="submit" 
-              className="w-full"
+              className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80 transition-all duration-300"
               disabled={isLoading}
             >
               {isLoading ? "Logging in..." : "Login"}

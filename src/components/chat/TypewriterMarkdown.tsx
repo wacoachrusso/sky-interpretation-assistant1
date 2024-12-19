@@ -29,8 +29,8 @@ export function TypewriterMarkdown({
     }
 
     let currentIndex = 0;
-    const chunkSize = 4; // Number of characters to add per tick
-    const effectiveSpeed = Math.max(1, speed / 4); // Faster speed
+    const chunkSize = 12; // Larger chunks for faster typing
+    const effectiveSpeed = Math.max(1, speed / 12); // Much faster speed
 
     const typeChunk = () => {
       if (currentIndex < content.length) {

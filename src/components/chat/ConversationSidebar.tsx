@@ -2,6 +2,7 @@ import React from 'react'
 import { ConversationList } from './ConversationList'
 import { Conversation } from '@/types/chat'
 import { useIsMobile } from '@/hooks/use-mobile'
+import { useToast } from '@/hooks/use-toast'
 
 interface ConversationSidebarProps {
   conversations: Conversation[]
@@ -10,6 +11,7 @@ interface ConversationSidebarProps {
   onSearchChange: (value: string) => void
   onConversationSelect: (id: string) => void
   onNewChat: () => void,
+  onClearAllChats: () => void,
   onDeleteConversation: (id: string) => void
 }
 
@@ -19,10 +21,25 @@ export function ConversationSidebar({
   searchTerm,
   onSearchChange,
   onConversationSelect,
+  onClearAllChats,
   onNewChat,
   onDeleteConversation,
 }: ConversationSidebarProps) {
   const isMobile = useIsMobile()
+  const { toast } = useToast()
+
+  const handleClearAllChats = async () => {
+    try {
+      await onClearAllChats()
+    } catch (error) {
+      console.error('Error clearing chats:', error)
+      toast({
+        title: 'Error',
+        description: 'Failed to clear chats. Please try again.',
+        variant: 'destructive'
+      })
+    }
+  }
   
   return (
     <div className="h-full flex flex-col">
@@ -42,6 +59,7 @@ export function ConversationSidebar({
           currentConversation={currentConversation}
           searchTerm={searchTerm}
           onSearchChange={onSearchChange}
+          onClearAllChats={handleClearAllChats}
           onConversationSelect={onConversationSelect}
           onNewChat={onNewChat}
           onDeleteConversation={onDeleteConversation}

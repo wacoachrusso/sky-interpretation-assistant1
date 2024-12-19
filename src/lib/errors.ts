@@ -55,6 +55,7 @@ export function handleError(error: any): string {
 export function isRetryableError(error: any): boolean {
   return (
     error?.message?.includes('body stream already read') ||
+    error?.message?.includes('Failed to execute \'text\' on \'Response\'') ||
     error?.message?.includes('Failed to fetch') ||
     error?.code === 'NETWORK_ERROR'
   )

@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useToast } from '@/components/ui/use-toast'
 import { Conversation } from '@/types/chat'
-import { fetchConversations, createConversation, deleteConversation } from '@/lib/api/conversations'
+import { fetchConversations, createConversation, deleteConversation, clearAllConversations } from '@/lib/api/conversations'
 import { handleError } from '@/lib/errors'
 
 export const useConversations = () => {
@@ -12,29 +12,72 @@ export const useConversations = () => {
   const isCreatingChat = useRef(false)
   const isLoadingConversations = useRef(false)
 
-  // Load conversations from local storage on initial mount
-  useEffect(() => {
-    if (!isInitialized.current) {
-      loadConversations()
-      isInitialized.current = true
+  const clearAllChats = async () => {
+    try {
+      await clearAllConversations()
+      setConversations([])
+      setCurrentConversation(null)
+      const newChatId = await createNewChat()
+      if (!newChatId) {
+        throw new Error('Failed to create new chat after clearing')
+      }
+      
+      toast({
+        description: "All chats cleared successfully",
+        duration: 2000,
+      })
+    } catch (error) {
+      console.error('Error clearing all chats:', error)
+      toast({
+        title: 'Error',
+        description: handleError(error),
+        variant: 'destructive',
+        duration: 3000,
+      })
+    }
+  }
+
+  const cleanupEmptyConversations = useCallback(async () => {
+    try {
+      const currentConversations = await fetchConversations()
+      if (!currentConversations?.length) return []
+      
+      const emptyConversations = currentConversations.filter(c => !c.last_message_at)
+      
+      for (const conv of emptyConversations) {
+        await deleteConversation(conv.id)
+      }
+      
+      return currentConversations.filter(c => c.last_message_at)
+    } catch (error) {
+      console.error('Error cleaning up conversations:', error)
+      return []
     }
   }, [])
+
+  const refreshConversations = useCallback(async () => {
+    try {
+      const data = await fetchConversations()
+      // Only show conversations with messages
+      const activeConversations = data.filter(c => c.last_message_at)
+      setConversations(activeConversations)
+      return data
+    } catch (error) {
+      console.error('Error refreshing conversations:', error)
+      return conversations
+    }
+  }, [conversations])
 
   const loadConversations = useCallback(async () => {
     try {
       if (isLoadingConversations.current) return
       isLoadingConversations.current = true
 
-      const data = await fetchConversations()
-      if (Array.isArray(data)) {
-        setConversations(data)
-      } else if (data) {
-        setConversations([data])
-      }
-      localStorage.setItem('conversations', JSON.stringify(data))
+      await cleanupEmptyConversations()
+      const data = await refreshConversations()
       
       if (Array.isArray(data) && data.length > 0) {
-        setCurrentConversation(data[0].id) 
+        setCurrentConversation(data[0].id)
       } else if (data) {
         setCurrentConversation(data.id)
       }
@@ -48,18 +91,30 @@ export const useConversations = () => {
     } finally {
       isLoadingConversations.current = false
     }
-  }, [])
+  }, [cleanupEmptyConversations, refreshConversations])
 
   const createNewChat = async () => {
     try {
-      // Prevent multiple simultaneous chat creations
       if (isCreatingChat.current) return null
+      
       isCreatingChat.current = true
+      console.log('Creating new chat...')
+      
+      // Clean up empty conversations first
+      const currentConversations = await cleanupEmptyConversations()
+      console.log('Cleaned up conversations:', currentConversations)
 
+      // Create new conversation
       const data = await createConversation()
-      const updatedConversations = [data, ...conversations]
-      setConversations(updatedConversations)
+      console.log('Created new conversation:', data)
+
+      // Update conversations list
+      const updatedConversations = await refreshConversations()
+      console.log('Refreshed conversations:', updatedConversations)
+
+      // Set as current conversation
       setCurrentConversation(data.id)
+      
       return data.id
     } catch (error) {
       console.error('Error creating new chat:', error)
@@ -78,16 +133,13 @@ export const useConversations = () => {
   const handleDeleteConversation = async (id: string) => {
     try {
       await deleteConversation(id)
-
-      // Update local state
-      const updatedConversations = conversations.filter(conv => conv.id !== id)
-      setConversations(updatedConversations)
+      const updatedConversations = await refreshConversations()
       
-      // If the deleted conversation was selected, select the first available one
       if (currentConversation === id) {
-        const nextConversation = updatedConversations[0]
+        // Find the next active conversation
+        const activeConversations = updatedConversations.filter(c => c.last_message_at)
+        const nextConversation = activeConversations[0]
         setCurrentConversation(nextConversation?.id || null)
-        // Create new chat if no conversations left
         if (!nextConversation) {
           createNewChat()
         }
@@ -109,15 +161,11 @@ export const useConversations = () => {
   }
 
   useEffect(() => {
-    loadConversations()
-  }, [loadConversations])
-
-  // Auto-start new chat when no conversation exists
-  useEffect(() => {
-    if (isInitialized.current && conversations.length === 0 && !isCreatingChat.current) {
-      createNewChat()
+    if (!isInitialized.current) {
+      loadConversations()
+      isInitialized.current = true
     }
-  }, [conversations.length, isInitialized.current])
+  }, [loadConversations])
 
   return {
     conversations,
@@ -125,5 +173,7 @@ export const useConversations = () => {
     setCurrentConversation,
     createNewChat,
     handleDeleteConversation,
+    refreshConversations,
+    clearAllChats,
   }
 }

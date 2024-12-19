@@ -22,6 +22,7 @@ interface ChatLayoutProps {
   onSearchChange: (value: string) => void
   onConversationSelect: (id: string) => void
   onNewChat: () => void
+  onClearAllChats: () => void
   onInputChange: (value: string) => void
   onSend: (e: React.FormEvent) => void,
   onDeleteConversation: (id: string) => void
@@ -39,6 +40,7 @@ export function ChatLayout({
   onSearchChange,
   onConversationSelect,
   onNewChat,
+  onClearAllChats,
   onInputChange,
   onSend,
   onDeleteConversation,
@@ -57,7 +59,7 @@ export function ChatLayout({
   }, [isMobile])
 
   return (
-    <div className="flex h-[100dvh] w-full overflow-hidden bg-gradient-to-br from-[hsl(var(--chat-gradient-start))] to-[hsl(var(--chat-gradient-end))] bg-opacity-5">
+    <div className="flex h-[100dvh] w-full overflow-hidden bg-white">
       <QueryLimitChecker />
       
       {/* Sidebar */}
@@ -66,7 +68,7 @@ export function ChatLayout({
           fixed inset-y-0 left-0 z-50 w-full sm:w-72 lg:w-80 transform transition-transform duration-300 ease-in-out
           ${showSidebar ? 'translate-x-0' : '-translate-x-full'}
           md:relative md:translate-x-0
-          bg-[hsla(var(--sidebar-bg))] border-r border-white/10 shadow-xl
+          bg-gray-900 border-r border-gray-800 shadow-xl
         `}
       >
         <ConversationSidebar
@@ -86,6 +88,7 @@ export function ChatLayout({
               setShowSidebar(false)
             }
           }}
+          onClearAllChats={onClearAllChats}
           onDeleteConversation={onDeleteConversation}
         />
       </div>
@@ -93,7 +96,7 @@ export function ChatLayout({
       {/* Main Content */}
       <div className="flex-1 flex flex-col relative w-full md:w-auto">
         {/* Mobile Header */}
-        <div className="h-14 flex items-center px-4 bg-[hsla(var(--sidebar-bg))] border-b border-white/10 sticky top-0 z-10 shadow-md">
+        <div className="h-14 flex items-center px-4 bg-gray-900 border-b border-gray-800 sticky top-0 z-10 shadow-md">
           <Button
             variant="ghost"
             size="icon"
@@ -121,7 +124,7 @@ export function ChatLayout({
         </div>
 
         {/* Input */}
-        <div className="p-2 sm:p-4 relative sticky bottom-0 bg-[hsla(var(--sidebar-bg))] shadow-lg">
+        <div className="p-2 sm:p-4 relative sticky bottom-0 bg-gray-900 shadow-lg">
           <MessageInput
             input={input}
             isLoading={isLoading}

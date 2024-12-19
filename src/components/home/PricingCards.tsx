@@ -20,7 +20,7 @@ const PricingCards = () => {
   };
 
   return (
-    <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+    <div className="relative z-10 grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
       <div className="p-8 rounded-lg border bg-white">
         <h3 className="text-xl font-semibold mb-4">Free Trial</h3>
         <p className="text-4xl font-bold mb-4">Free</p>
@@ -54,7 +54,7 @@ const PricingCards = () => {
         </Button>
       </div>
       <div className="p-8 rounded-lg border bg-white relative overflow-hidden">
-        <div className="absolute top-4 right-4 bg-secondary text-white px-3 py-1 rounded-full text-sm">
+        <div className="absolute -top-2 -right-12 bg-gradient-to-r from-secondary to-secondary/80 text-white px-12 py-1 rotate-45 shadow-lg">
           Best Value
         </div>
         <h3 className="text-xl font-semibold mb-4">Annual Plan</h3>

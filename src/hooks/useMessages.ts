@@ -1,8 +1,10 @@
-import * as React from 'react'
-const { useState, useRef } = React
+import { useState, useRef } from 'react'
 import { useToast } from '@/hooks/use-toast'
 import { Message } from '@/types/chat'
-import { processMessage, saveMessage } from '@/lib/api/messages'
+import { fetchMessages, processMessage, saveMessage } from '@/lib/api/messages'
+import { supabase } from '@/integrations/supabase/client'
+import { handleError, isRetryableError } from '@/lib/errors'
+import { generateTitleFromContent } from '@/lib/utils'
 
 export const useMessages = () => {
   const [messages, setMessages] = useState<Message[]>([])
@@ -10,22 +12,18 @@ export const useMessages = () => {
   const { toast } = useToast()
   const isProcessing = useRef(false)
 
-  const fetchMessages = async (conversationId: string) => {
+  const loadMessages = async (conversationId: string) => {
     try {
-      const { data, error } = await supabase
-        .from('messages')
-        .select('*')
-        .eq('conversation_id', conversationId)
-        .order('created_at', { ascending: true })
-
-      if (error) throw error
-      setMessages(data)
+      const messages = await fetchMessages(conversationId)
+      if (!messages) return
+      setMessages(messages)
     } catch (error) {
       console.error('Error fetching messages:', error)
       toast({
         title: 'Error',
-        description: 'Failed to load messages',
+        description: handleError(error),
         variant: 'destructive',
+        duration: 3000
       })
     }
   }
@@ -35,15 +33,37 @@ export const useMessages = () => {
 
     setIsLoading(true)
     isProcessing.current = true
-    console.log('Sending message:', input)
 
     try {
       // Save user message
       const userMessage = await saveMessage(input, 'user', conversationId)
       setMessages(prev => [...prev, userMessage])
 
+      // Update conversation title if this is the first message
+      if (messages.length === 0) {
+        const title = generateTitleFromContent(input)
+        await supabase
+          .from('conversations')
+          .update({ 
+            title,
+            last_message_at: new Date().toISOString() 
+          })
+          .eq('id', conversationId)
+      } else {
+        // Just update last_message_at
+        await supabase
+          .from('conversations')
+          .update({ last_message_at: new Date().toISOString() })
+          .eq('id', conversationId)
+      }
+
+      // Update conversation's last_message_at
       // Process with assistant
       const assistantResponse = await processMessage(input, conversationId, [...messages, userMessage])
+      
+      if (!assistantResponse) {
+        throw new Error('Failed to get response from assistant')
+      }
       
       // Save assistant message
       const assistantMessage = await saveMessage(assistantResponse, 'assistant', conversationId)
@@ -66,6 +86,6 @@ export const useMessages = () => {
     messages,
     isLoading,
     sendMessage,
-    fetchMessages,
+    fetchMessages: loadMessages,
   }
 }

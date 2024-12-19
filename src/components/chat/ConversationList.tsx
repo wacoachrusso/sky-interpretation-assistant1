@@ -2,7 +2,7 @@ import React from 'react'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { ScrollArea } from '../ui/scroll-area'
-import { Search, Plus, MessageSquare, Trash2 } from 'lucide-react'
+import { Search, Plus, MessageSquare, Trash2, Trash } from 'lucide-react'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,6 +23,7 @@ interface ConversationListProps {
   onSearchChange: (value: string) => void
   onConversationSelect: (id: string) => void
   onNewChat: () => void
+  onClearAllChats: () => void
   onDeleteConversation: (id: string) => void
 }
 
@@ -32,6 +33,7 @@ export function ConversationList({
   searchTerm,
   onSearchChange,
   onConversationSelect,
+  onClearAllChats,
   onNewChat,
   onDeleteConversation,
 }: ConversationListProps) {
@@ -41,15 +43,46 @@ export function ConversationList({
 
   return (
     <div className="flex flex-col h-full">
-      <div className="p-3">
-        <Button 
-          onClick={onNewChat} 
-          className="w-full bg-gradient-to-br from-[hsl(var(--chat-gradient-start))] to-[hsl(var(--chat-gradient-end))] hover:opacity-90 text-white border-0 flex items-center gap-2 shadow-lg transition-all duration-200"
-          variant="outline"
-        >
-          <Plus className="w-4 h-4" />
+      <div className="p-3 space-y-2">
+        <div className="flex gap-2">
+          <Button 
+            onClick={onNewChat} 
+            className="flex-1 bg-gradient-to-br from-[hsl(var(--chat-gradient-start))] to-[hsl(var(--chat-gradient-end))] hover:opacity-90 text-white border-0 flex items-center gap-2 shadow-lg transition-all duration-200"
+            variant="outline"
+          >
+            <Plus className="w-4 h-4" />
           New chat
-        </Button>
+          </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="outline"
+                className="bg-red-500/10 hover:bg-red-500/20 text-red-500 border-0"
+              >
+                <Trash className="w-4 h-4" />
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent className="bg-[#2D2D30] border-[#4D4D4F] text-white">
+              <AlertDialogHeader>
+                <AlertDialogTitle>Clear All Chats</AlertDialogTitle>
+                <AlertDialogDescription className="text-[#8E8EA0]">
+                  Are you sure you want to clear all chats? This action cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel className="bg-transparent border-[#4D4D4F] text-white hover:bg-[#3D3D40]">
+                  Cancel
+                </AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={onClearAllChats}
+                  className="bg-red-500 hover:bg-red-600 text-white"
+                >
+                  Clear All
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
       </div>
 
       <div className="px-3 mb-2">

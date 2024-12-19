@@ -3,6 +3,7 @@ import { Conversation } from '@/types/chat';
 import { AuthError } from '@/lib/errors';
 import { getCurrentUser } from './auth';
 import { saveOffline, loadOffline } from './storage';
+import { generateTitleFromContent } from '@/lib/utils';
 
 export async function fetchConversations(): Promise<Conversation[]> {
   try {
@@ -14,17 +15,17 @@ export async function fetchConversations(): Promise<Conversation[]> {
       return loadOffline('conversations') || [];
     }
 
-    const { data, error } = await supabase
-      .from('conversations')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('last_message_at', { ascending: false });
+    const data = await supabase.select<Conversation>('conversations', {
+      filter: { user_id: user.id },
+      order: [{ column: 'last_message_at', ascending: false }]
+    });
 
-    if (error) throw error;
-
+    // Filter out conversations with no messages
+    const activeConversations = data.filter(c => c.last_message_at);
+    
     // Save conversations offline for backup
-    saveOffline('conversations', data);
-    return data;
+    saveOffline('conversations', activeConversations);
+    return activeConversations;
 
   } catch (error) {
     console.error('Error fetching conversations:', error);
@@ -40,12 +41,6 @@ export async function createConversation(title: string = 'New Chat'): Promise<Co
     const user = await getCurrentUser();
     if (!user) throw new AuthError('No user found');
     
-    // Prevent duplicate conversation creation
-    const existingConversations = await fetchConversations();
-    if (existingConversations.some(c => c.title === title && !c.last_message_at)) {
-      return existingConversations.find(c => c.title === title)!;
-    }
-
     // In test mode, save to localStorage
     if (localStorage.getItem('testMode') === 'true') {
       const conversation = {
@@ -53,10 +48,11 @@ export async function createConversation(title: string = 'New Chat'): Promise<Co
         title,
         user_id: 'test-user',
         created_at: new Date().toISOString(),
-        last_message_at: new Date().toISOString()
+        last_message_at: null
       };
       const conversations = loadOffline('conversations') || [];
-      saveOffline('conversations', [conversation, ...conversations]);
+      const activeConversations = conversations.filter(c => c.last_message_at);
+      saveOffline('conversations', [conversation, ...activeConversations]);
       return conversation;
     }
 
@@ -65,7 +61,7 @@ export async function createConversation(title: string = 'New Chat'): Promise<Co
       .insert([{
         title,
         user_id: user.id,
-        last_message_at: new Date().toISOString()
+        last_message_at: null // This will be updated when first message is sent
       }])
       .select()
       .single();
@@ -74,10 +70,8 @@ export async function createConversation(title: string = 'New Chat'): Promise<Co
 
     // Update offline storage
     const conversations = loadOffline('conversations') || [];
-    const uniqueConversations = [data, ...conversations].filter((conv, index, self) => 
-      index === self.findIndex(c => c.id === conv.id)
-    );
-    saveOffline('conversations', uniqueConversations);
+    const activeConversations = conversations.filter(c => c.last_message_at);
+    saveOffline('conversations', [data, ...activeConversations]);
 
     return data;
 
@@ -89,14 +83,13 @@ export async function createConversation(title: string = 'New Chat'): Promise<Co
 
 export async function updateConversationTitle(id: string, title: string): Promise<void> {
   try {
+    if (!title?.trim()) return;
+
     const user = await getCurrentUser();
     if (!user) throw new AuthError('No user found');
     
-    // Don't update title if it's empty
-    if (!title.trim()) return;
-    
     // Truncate title if too long
-    const truncatedTitle = title.slice(0, 100);
+    const truncatedTitle = generateTitleFromContent(title);
 
     // In test mode, update in localStorage
     if (localStorage.getItem('testMode') === 'true') {
@@ -112,8 +105,7 @@ export async function updateConversationTitle(id: string, title: string): Promis
       .from('conversations')
       .update({ title: truncatedTitle })
       .eq('id', id)
-      .eq('user_id', user.id)
-      .select();
+      .eq('user_id', user.id);
 
     if (error) throw error;
 
@@ -159,6 +151,38 @@ export async function deleteConversation(id: string): Promise<void> {
 
   } catch (error) {
     console.error('Error deleting conversation:', error);
+    throw error;
+  }
+}
+
+export async function clearAllConversations(): Promise<void> {
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      throw new AuthError('No user found');
+    }
+
+    // In test mode, clear localStorage
+    if (localStorage.getItem('testMode') === 'true') {
+      saveOffline('conversations', []);
+      return;
+    }
+
+    await supabase.deleteAll('conversations', user.id);
+    const { error } = await supabase
+      .from('conversations')
+      .delete()
+      .eq('user_id', user.id);
+
+    if (error) {
+      throw error;
+    }
+
+    // Clear offline storage
+    saveOffline('conversations', []);
+
+  } catch (error) {
+    console.error('Error clearing conversations:', error);
     throw error;
   }
 }
