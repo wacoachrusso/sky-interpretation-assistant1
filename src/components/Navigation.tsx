@@ -32,20 +32,20 @@ export const Navigation = () => {
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate("/")}>
             <img
-              src="/lovable-uploads/4d0b5f1f-ee3c-422d-81df-9db600490aec.png"
+              src="/SkyGuide Logo.png"
               alt="SkyGuide Logo"
-              className="h-8"
+              className="h-8 w-auto object-contain"
             />
             <span className="text-xl font-bold text-primary">SkyGuide</span>
           </div>
           <NavigationMenu>
             <NavigationMenuList>
-              {process.env.NODE_ENV === 'development' && (
+              {(process.env.NODE_ENV === 'development' || process.env.DEV) && (
                 <NavigationMenuItem>
                   <Button 
                     variant="outline" 
                     onClick={handleTestLogin}
-                    className="bg-yellow-100 hover:bg-yellow-200 border-yellow-400"
+                    className="bg-yellow-100 hover:bg-yellow-200 border-yellow-400 mr-2"
                   >
                     Test Mode
                   </Button>
