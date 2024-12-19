@@ -46,7 +46,7 @@ export function ConversationSidebar({
       <div className="p-3 border-b border-[#4D4D4F]">
         <div className="flex items-center gap-2 px-2 py-1">
           <img
-            src="/SkyGuide Logo.png"
+            src="/logo.png"
             alt="SkyGuide Logo"
             className="h-6 w-auto object-contain"
           />

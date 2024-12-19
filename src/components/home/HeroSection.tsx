@@ -15,7 +15,7 @@ const HeroSection = () => {
           </div>
           <div className="flex-1 flex justify-center">
             <img
-              src="/SkyGuide Logo.png"
+              src="/logo.png"
               alt="SkyGuide Logo"
               className="w-64 md:w-96 h-auto object-contain drop-shadow-xl transform hover:scale-105 transition-transform duration-300"
             />

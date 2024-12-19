@@ -8,6 +8,8 @@ export const Navigation = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   
+  const isDev = process.env.NODE_ENV === 'development' || import.meta.env.DEV;
+  
   const handleTestLogin = async () => {
     try {
       await testLogin();
@@ -32,7 +34,7 @@ export const Navigation = () => {
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate("/")}>
             <img
-              src="/SkyGuide Logo.png"
+              src="/logo.png"
               alt="SkyGuide Logo"
               className="h-8 w-auto object-contain"
             />
@@ -40,7 +42,7 @@ export const Navigation = () => {
           </div>
           <NavigationMenu>
             <NavigationMenuList>
-              {(process.env.NODE_ENV === 'development' || process.env.DEV) && (
+              {isDev && (
                 <NavigationMenuItem>
                   <Button 
                     variant="outline" 
