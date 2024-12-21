@@ -14,12 +14,7 @@ export default defineConfig({
     assetsInclude: ['**/*.png', '**/*.ico'],
     rollupOptions: {
       output: {
-        assetFileNames: (assetInfo) => {
-          if (assetInfo.name?.endsWith('.png') || assetInfo.name?.endsWith('.ico')) {
-            return `[name][extname]`;
-          }
-          return 'assets/[name]-[hash][extname]';
-        }
+        assetFileNames: 'assets/[name][extname]'
       }
     }
   },

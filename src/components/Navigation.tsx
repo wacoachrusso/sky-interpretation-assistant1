@@ -34,7 +34,7 @@ export const Navigation = () => {
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate("/")}>
             <img 
-              src="/logo.png"
+              src="./logo.png"
               alt="SkyGuide Logo"
               className="h-8 w-auto object-contain"
             />
