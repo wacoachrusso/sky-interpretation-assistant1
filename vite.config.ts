@@ -13,12 +13,14 @@ export default defineConfig({
   build: {
     copyPublicDir: true,
     assetsInclude: ['**/*.png', '**/*.ico'],
+    outDir: 'dist',
+    emptyOutDir: true,
     rollupOptions: {
       output: {
         assetFileNames: (assetInfo) => {
           const name = assetInfo.name || '';
           if (name.endsWith('.png') || name.endsWith('.ico')) {
-            return `[name][extname]`;
+            return `${name}`;
           }
           return 'assets/[name]-[hash][extname]';
         },
