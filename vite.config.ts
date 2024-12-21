@@ -8,19 +8,20 @@ export default defineConfig({
   server: {
     host: "::",
     port: 8080,
-    hmr: true
+    hmr: true,
   },
   build: {
+    assetsInclude: ['**/*.png'],
     rollupOptions: {
       output: {
-        assetFileNames: ({ name }) => {
-          if (/\.(png|jpe?g|svg|gif|ico)$/i.test(name ?? '')) {
-            return 'assets/[name][extname]';
+        assetFileNames: (assetInfo) => {
+          if (assetInfo.name?.endsWith('.png')) {
+            return `[name][extname]`;
           }
           return 'assets/[name]-[hash][extname]';
         }
       }
-    }
+    },
   },
   plugins: [
     react(),
