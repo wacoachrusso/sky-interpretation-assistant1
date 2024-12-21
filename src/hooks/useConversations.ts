@@ -1,26 +1,44 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useToast } from '@/components/ui/use-toast'
 import { Conversation } from '@/types/chat'
-import { fetchConversations, createConversation, deleteConversation, clearAllConversations } from '@/lib/api/conversations'
+import { 
+  fetchConversations, 
+  createConversation, 
+  deleteConversation, 
+  clearAllConversations 
+} from '@/lib/api/conversations'
 import { handleError } from '@/lib/errors'
+import { retryWithBackoff } from '@/lib/retry-utils'
+
+const RETRY_OPTIONS = {
+  maxRetries: 3,
+  baseDelay: 1000,
+  shouldRetry: (error: any) => 
+    error?.message?.includes('body stream already read') ||
+    error?.message?.includes('Failed to fetch')
+}
 
 export const useConversations = () => {
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [currentConversation, setCurrentConversation] = useState<string | null>(null)
   const { toast } = useToast()
   const isInitialized = useRef<boolean>(false)
-  const isCreatingChat = useRef(false)
-  const isLoadingConversations = useRef(false)
+  const isCreatingChat = useRef<boolean>(false)
+  const isLoadingConversations = useRef<boolean>(false)
 
   const clearAllChats = async () => {
     try {
       await clearAllConversations()
       setConversations([])
       setCurrentConversation(null)
-      const newChatId = await createNewChat()
-      if (!newChatId) {
-        throw new Error('Failed to create new chat after clearing')
+      
+      const createChat = async () => {
+        const newChatId = await createNewChat()
+        if (!newChatId) throw new Error('Failed to create new chat')
+        return newChatId
       }
+      
+      await retryWithBackoff(createChat, RETRY_OPTIONS)
       
       toast({
         description: "All chats cleared successfully",
@@ -39,16 +57,18 @@ export const useConversations = () => {
 
   const cleanupEmptyConversations = useCallback(async () => {
     try {
-      const currentConversations = await fetchConversations()
-      if (!currentConversations?.length) return []
-      
-      const emptyConversations = currentConversations.filter(c => !c.last_message_at)
-      
-      for (const conv of emptyConversations) {
-        await deleteConversation(conv.id)
+      const cleanup = async () => {
+        const currentConversations = await fetchConversations()
+        if (!currentConversations?.length) return []
+        
+        const emptyConversations = currentConversations.filter(c => !c.last_message_at)
+        
+        for (const conv of emptyConversations) {
+          await deleteConversation(conv.id)
+        }
       }
       
-      return currentConversations.filter(c => c.last_message_at)
+      return await retryWithBackoff(cleanup, RETRY_OPTIONS)
     } catch (error) {
       console.error('Error cleaning up conversations:', error)
       return []
@@ -57,7 +77,7 @@ export const useConversations = () => {
 
   const refreshConversations = useCallback(async () => {
     try {
-      const data = await fetchConversations()
+      const data = await retryWithBackoff(fetchConversations, RETRY_OPTIONS)
       // Only show conversations with messages
       const activeConversations = data.filter(c => c.last_message_at)
       setConversations(activeConversations)
@@ -98,19 +118,15 @@ export const useConversations = () => {
       if (isCreatingChat.current) return null
       
       isCreatingChat.current = true
-      console.log('Creating new chat...')
       
       // Clean up empty conversations first
       const currentConversations = await cleanupEmptyConversations()
-      console.log('Cleaned up conversations:', currentConversations)
 
       // Create new conversation
-      const data = await createConversation()
-      console.log('Created new conversation:', data)
+      const data = await retryWithBackoff(() => createConversation(), RETRY_OPTIONS)
 
       // Update conversations list
       const updatedConversations = await refreshConversations()
-      console.log('Refreshed conversations:', updatedConversations)
 
       // Set as current conversation
       setCurrentConversation(data.id)

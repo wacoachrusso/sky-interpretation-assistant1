@@ -33,8 +33,8 @@ export const Navigation = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate("/")}>
-            <img
-              src="/logo.png"
+            <img 
+              src="/favicon.png"
               alt="SkyGuide Logo"
               className="h-8 w-auto object-contain"
             />
@@ -42,7 +42,7 @@ export const Navigation = () => {
           </div>
           <NavigationMenu>
             <NavigationMenuList>
-              {isDev && (
+              {(isDev || import.meta.env.DEV) && (
                 <NavigationMenuItem>
                   <Button 
                     variant="outline" 

@@ -1,14 +1,38 @@
 import { supabase } from '@/integrations/supabase/client'
 import { AuthError } from '../errors'
+import { persistSession, clearSession } from '@/lib/session'
+import { executeSupabaseOperation } from './supabase-operations'
 
-export async function signIn(email: string, password: string) {
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  })
+const RETRY_OPTIONS = {
+  maxRetries: 2,
+  baseDelay: 1000,
+  shouldRetry: (error: any) => 
+    error?.message?.includes('body stream already read') ||
+    error?.message?.includes('Failed to fetch')
+}
 
-  if (error) throw error
-  return data
+export async function signIn(email: string, password: string, stayLoggedIn = false) {
+  try {
+    const data = await executeSupabaseOperation(async () => {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+        options: {
+          persistSession: stayLoggedIn
+        }
+      })
+      if (error) throw error
+      return data
+    }, RETRY_OPTIONS)
+    
+    if (stayLoggedIn) {
+      persistSession()
+    }
+    
+    return data
+  } catch (error) {
+    throw error
+  }
 }
 
 export async function signUp(email: string, password: string, metadata?: any) {

@@ -1,15 +1,8 @@
 import { createClient } from '@supabase/supabase-js'
-import { retryWithBackoff } from '@/lib/retry-utils'
 import { isRetryableError } from '@/lib/errors'
 
 const SUPABASE_URL = "https://xnlzqsoujwsffoxhhybk.supabase.co"
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhubHpxc291andzZmZveGhoeWJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ0ODA1ODUsImV4cCI6MjA1MDA1NjU4NX0.G-N5b6L3-208ox8jRHPj8NDyQAg8xIDST3r8v8Tlae8"
-
-const RETRY_OPTIONS = {
-  maxRetries: 3,
-  baseDelay: 1000,
-  shouldRetry: isRetryableError
-}
 
 interface QueryOptions {
   query?: string
@@ -17,15 +10,19 @@ interface QueryOptions {
   order?: Array<{ column: string; ascending?: boolean }>
 }
 
+interface SupabaseResponse<T> {
+  data: T | null
+  error: any
+}
+
 class SupabaseClient {
   private client = createClient(SUPABASE_URL, SUPABASE_KEY)
 
-  private async query<T>(operation: () => Promise<{ data: T; error: any }>) {
-    return retryWithBackoff(async () => {
-      const { data, error } = await operation()
-      if (error) throw error
-      return data
-    }, RETRY_OPTIONS)
+  private async query<T>(operation: () => Promise<SupabaseResponse<T>>): Promise<T> {
+    const { data, error } = await operation()
+    if (error) throw error
+    if (!data) throw new Error('No data returned')
+    return data
   }
 
   async select<T>(table: string, options: QueryOptions = {}) {

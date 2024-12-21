@@ -4,18 +4,20 @@ import path from "path";
 import { componentTagger } from "lovable-tagger";
 
 export default defineConfig({
+  publicDir: 'public',
   server: {
     host: "::",
     port: 8080,
     hmr: true
   },
   build: {
-    assetsInclude: ['**/*.png'], // Ensure PNG files are included in the build
+    assetsInclude: ['**/*.png', '**/*.jpg', '**/*.jpeg', '**/*.gif', '**/*.svg', '**/*.ico'],
     rollupOptions: {
       output: {
         assetFileNames: (assetInfo) => {
-          if (assetInfo.name === 'favicon.png') {
-            return 'favicon.png';
+          const imgExtensions = ['.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico'];
+          if (assetInfo.name && imgExtensions.some(ext => assetInfo.name?.endsWith(ext))) {
+            return `assets/[name][extname]`;
           }
           return 'assets/[name]-[hash][extname]';
         }

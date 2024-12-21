@@ -9,7 +9,7 @@ import { useToast } from '../ui/use-toast'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { LoadingMessage } from './LoadingMessage'
 
-const CONTRACT_REFERENCE_STYLES = "bg-[#2D2D30] p-3 rounded-md border border-[#4D4D4F] my-2 font-mono text-sm overflow-x-auto max-w-full whitespace-pre-wrap break-words shadow-lg mx-auto"
+const CONTRACT_REFERENCE_STYLES = "bg-gray-900 p-3 rounded-md border border-gray-700 my-2 font-mono text-sm overflow-x-auto max-w-full whitespace-pre-wrap break-words shadow-lg mx-auto text-white"
 
 interface MessageListProps {
   messages: Message[]
@@ -48,7 +48,7 @@ export function MessageList({ messages, isLoading, messagesEndRef }: MessageList
   }
 
   return (
-    <div className="relative h-[calc(100dvh-8rem)] bg-white">
+    <div className="relative h-[calc(100dvh-8rem)] bg-[#343541]">
       <div className="absolute inset-0 flex flex-col">
         <ScrollArea className="flex-1 [&>div>div]:!block">
           <div className="min-h-full pb-32">
@@ -61,21 +61,21 @@ export function MessageList({ messages, isLoading, messagesEndRef }: MessageList
                     key={`${message.id}-${message.created_at}`}
                     className={`px-4 py-3 ${
                       message.role === 'assistant' 
-                        ? 'bg-blue-50 hover:bg-blue-100/70'
-                        : 'bg-gray-50 hover:bg-gray-100/70'
+                        ? 'bg-[hsla(var(--assistant-message-bg))] hover:bg-[hsla(var(--message-hover))]'
+                        : 'bg-[hsla(var(--user-message-bg))] hover:bg-[hsla(var(--message-hover))]'
                     }`}
                   >
                     <div className={`w-full px-2 sm:px-0 max-w-[95%] lg:max-w-4xl mx-auto flex gap-2 sm:gap-3`}>
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
                         message.role === 'assistant'
-                          ? 'bg-blue-600 shadow-md'
-                          : 'bg-gray-700 shadow-md'
+                          ? 'bg-gradient-to-br from-[hsl(var(--chat-gradient-start))] to-[hsl(var(--chat-gradient-end))] shadow-lg'
+                          : 'bg-gradient-to-br from-[hsl(var(--accent-purple))] to-[hsl(var(--accent-blue))] shadow-lg'
                       }`}>
                         {message.role === 'assistant' ? 'AI' : 'U'}
                       </div>
                       <div className="flex-1 min-w-0 overflow-hidden break-words">
                         <div className="flex justify-between items-start gap-2">
-                          <div className={`text-gray-800 leading-relaxed break-words max-w-full ${
+                          <div className={`text-[#ECECF1] leading-relaxed break-words max-w-full ${
                             isMobile ? 'text-sm' : 'text-base'
                           }`}>
                             {message.role === 'assistant' && message.id === lastMessageId ? (

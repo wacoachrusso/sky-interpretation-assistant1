@@ -59,7 +59,7 @@ export function ChatLayout({
   }, [isMobile])
 
   return (
-    <div className="flex h-[100dvh] w-full overflow-hidden bg-white">
+    <div className="flex h-[100dvh] w-full overflow-hidden bg-[#343541]">
       <QueryLimitChecker />
       
       {/* Sidebar */}
@@ -68,7 +68,7 @@ export function ChatLayout({
           fixed inset-y-0 left-0 z-50 w-full sm:w-72 lg:w-80 transform transition-transform duration-300 ease-in-out
           ${showSidebar ? 'translate-x-0' : '-translate-x-full'}
           md:relative md:translate-x-0
-          bg-gray-900 border-r border-gray-800 shadow-xl
+          bg-[#202123] border-r border-[#4D4D4F] shadow-xl
         `}
       >
         <ConversationSidebar
@@ -96,7 +96,7 @@ export function ChatLayout({
       {/* Main Content */}
       <div className="flex-1 flex flex-col relative w-full md:w-auto">
         {/* Mobile Header */}
-        <div className="h-14 flex items-center px-4 bg-gray-900 border-b border-gray-800 sticky top-0 z-10 shadow-md">
+        <div className="h-14 flex items-center px-4 bg-[#343541] border-b border-[#4D4D4F] sticky top-0 z-10 shadow-sm">
           <Button
             variant="ghost"
             size="icon"

@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { checkSession, clearSession } from '@/lib/session';
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -32,6 +33,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       return;
     }
 
+    // Check for persisted session
+    if (checkSession()) {
+      setIsAuthenticated(true);
+      setIsLoading(false);
+      return;
+    }
+
     // Check active sessions
     supabase.auth.getSession().then(({ data: { session } }) => {
       setIsAuthenticated(!!session);
@@ -58,6 +66,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         localStorage.removeItem('conversations');
         setIsAuthenticated(false);
         setUser(null);
+        clearSession();
+        clearSession();
         toast({
           description: "Test mode deactivated",
           duration: 3000,
@@ -68,6 +78,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       await supabase.auth.signOut();
       setIsAuthenticated(false);
       setUser(null);
+      clearSession();
+      clearSession();
       toast({
         description: "Logged out successfully",
         duration: 3000,
