@@ -11,12 +11,12 @@ export default defineConfig({
     hmr: true
   },
   build: {
-    assetsInclude: ['**/*.png', '**/*.jpg', '**/*.jpeg', '**/*.gif', '**/*.svg', '**/*.ico'],
+    assetsInclude: ['**/*.png', '**/*.ico'],
     rollupOptions: {
       output: {
         assetFileNames: (assetInfo) => {
           if (assetInfo.name?.endsWith('.png') || assetInfo.name?.endsWith('.ico')) {
-            return `assets/[name][extname]`;
+            return `[name][extname]`;
           }
           return 'assets/[name]-[hash][extname]';
         }
