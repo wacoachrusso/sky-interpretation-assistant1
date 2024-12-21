@@ -1,7 +1,6 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
-import { componentTagger } from "lovable-tagger";
 
 export default defineConfig({
   publicDir: 'public',
@@ -18,19 +17,15 @@ export default defineConfig({
     rollupOptions: {
       output: {
         assetFileNames: (assetInfo) => {
-          const name = assetInfo.name || '';
-          if (name.endsWith('.png') || name.endsWith('.ico')) {
-            return `${name}`;
+          if (assetInfo.name?.match(/\.(png|jpe?g|svg|gif|ico)$/)) {
+            return 'assets/[name][extname]';
           }
           return 'assets/[name]-[hash][extname]';
         },
       }
     }
   },
-  plugins: [
-    react(),
-    componentTagger(),
-  ],
+  plugins: [react()],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
