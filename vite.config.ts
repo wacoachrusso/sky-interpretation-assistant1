@@ -15,8 +15,7 @@ export default defineConfig({
     rollupOptions: {
       output: {
         assetFileNames: (assetInfo) => {
-          const imgExtensions = ['.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico'];
-          if (assetInfo.name && imgExtensions.some(ext => assetInfo.name?.endsWith(ext))) {
+          if (assetInfo.name?.endsWith('.png') || assetInfo.name?.endsWith('.ico')) {
             return `assets/[name][extname]`;
           }
           return 'assets/[name]-[hash][extname]';
