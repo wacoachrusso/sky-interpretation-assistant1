@@ -11,17 +11,19 @@ export default defineConfig({
     hmr: true,
   },
   build: {
-    assetsInclude: ['**/*.png'],
+    copyPublicDir: true,
+    assetsInclude: ['**/*.png', '**/*.ico'],
     rollupOptions: {
       output: {
         assetFileNames: (assetInfo) => {
-          if (assetInfo.name?.endsWith('.png')) {
+          const name = assetInfo.name || '';
+          if (name.endsWith('.png') || name.endsWith('.ico')) {
             return `[name][extname]`;
           }
           return 'assets/[name]-[hash][extname]';
-        }
+        },
       }
-    },
+    }
   },
   plugins: [
     react(),
