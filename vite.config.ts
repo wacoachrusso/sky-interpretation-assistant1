@@ -11,10 +11,14 @@ export default defineConfig({
     hmr: true
   },
   build: {
-    assetsInclude: ['**/*.png', '**/*.ico'],
     rollupOptions: {
       output: {
-        assetFileNames: 'assets/[name][extname]'
+        assetFileNames: ({ name }) => {
+          if (/\.(png|jpe?g|svg|gif|ico)$/i.test(name ?? '')) {
+            return 'assets/[name][extname]';
+          }
+          return 'assets/[name]-[hash][extname]';
+        }
       }
     }
   },
